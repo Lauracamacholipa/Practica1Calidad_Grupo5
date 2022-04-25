@@ -28,7 +28,7 @@ var GF = function(){
 		// test3
 		// Tu código aquí
 
-		this.x += this.speed
+		this.posX += this.speed
 	};
 
 	// Función para pintar el Pacman
@@ -85,8 +85,8 @@ var GF = function(){
 		// Clear the canvas
 		clearCanvas();
     
-		pacman.move();   
-		pacman.draw();
+		//pacman.move();
+		pacman.draw(pacman.posX,pacman.posY);
      
 		// desactivando mainloop para probar los tests unitarios 
 		// call the animation loop every 1/60th of second
@@ -111,7 +111,7 @@ var GF = function(){
   var game = new GF();
   game.start();
 
- test('Testeando pos. inicial', function(assert) {  
+test('Testeando pos. inicial', function(assert) {
    // canvas, x,y, r,g,b, a, mezua
  
 //   ctx.fillStyle = 'red';

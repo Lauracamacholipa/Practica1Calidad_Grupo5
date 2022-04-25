@@ -9,7 +9,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "jsfiddle-downloader": "^0.2.2",
     "serve": "^13.0.2"
   }
 }
