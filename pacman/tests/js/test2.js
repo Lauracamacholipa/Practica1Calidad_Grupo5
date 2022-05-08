@@ -62,14 +62,18 @@ var GF = function(){
          
 		// Pac Man
 		// test2
-		// Tu código aquí		
-		
-		var rad = 15 
-		ctx.beginPath();
-		ctx.arc(x+rad /*25*/, y+rad /*115*/, rad, 0.25 * Math.PI, 0.75 * Math.PI, true);
-		ctx.fillStyle = "#FFFF00";
+		// Tu código aquí
+
+		pacman.posX = x;
+		pacman.posY = y;
+
+		// Dibujar a pacman
+		ctx.moveTo(pacman.posX + pacman.radius,pacman.posY + pacman.radius);
+		ctx.arc(pacman.posX + pacman.radius,pacman.posY + pacman.radius,pacman.radius,pacman.angle1*Math.PI,pacman.angle2*Math.PI,false);
+		ctx.fillStyle = '#FFFF00';
+		ctx.strokeStyle = 'black';
+		ctx.closePath();
 		ctx.fill();
-		ctx.strokeStyle = '#FFFF00';
 		ctx.stroke();	         
 	}
   

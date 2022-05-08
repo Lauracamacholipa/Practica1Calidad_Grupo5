@@ -17,7 +17,7 @@ var GF = function(){
 	var fps; 
  
 	//  variable global temporalmente para poder testear el ejercicio
-	inputStates = {};
+	inputStates = { left: false, up: false, right: false, down: false, space: false };
 
 	var Pacman = function() {
 		this.radius = 15;
@@ -28,19 +28,44 @@ var GF = function(){
 		this.angle2 = 1.75;
 	};
 	Pacman.prototype.move = function() {
-
-		// test4
-		// Tu código aquí
-	};
+		if(inputStates.right) {
+		  if(this.x + this.radius*2 + this.velX <= w) {
+			this.x += this.velX;
+			this.angle1 = 0.25;
+			this.angle2 = 1.75;
+		  }
+		} else if(inputStates.left) {
+		  if(this.x + this.velX >= 0) {
+			this.x += this.velX;
+			this.angle1 = 1.25;
+			this.angle2 = 0.75;
+		  }
+		} else if(inputStates.down) {
+		  if(this.y + this.radius*2 + this.velY <= h) {
+			this.y += this.velY;
+			this.angle1 = 0.75;
+			this.angle2 = 0.25;
+		  }
+		} else if(inputStates.up) {
+		  if(this.y + this.velY >= 0) {
+			this.y += this.velY;
+			this.angle1 = 1.75;
+			this.angle2 = 1.25;
+		  }
+		}
+		};
 
 
 	// Función para pintar el Pacman
-	Pacman.prototype.draw = function(x, y) {
-         
-		// Pac Man
-		// test2   
-		// Tu código aquí
-		// ojo: en el test2 esta función se llama drawPacman(x,y))	         
+	Pacman.prototype.draw = function(x, y) { 
+		ctx.beginPath();
+		ctx.moveTo(this.x + this.radius,this.y + this.radius);
+		ctx.arc(this.x + this.radius,this.y + this.radius,this.radius,this.angle1*Math.PI,this.angle2*Math.PI,false);
+		ctx.fillStyle = '#FFFF00';
+		ctx.strokeStyle = 'black';
+		ctx.closePath();
+		ctx.fill();
+		ctx.stroke();       
 	}
   
 	// OJO, esto hace a pacman una variable global	
@@ -75,8 +100,22 @@ var GF = function(){
 	};
 
 	var checkInputs = function(){
-		// test4
-		// Tu código aquí
+		if(inputStates.right) {
+			player.velY = 0;
+			player.velX = player.speed;
+		} else if(inputStates.left) {
+			player.velY = 0;
+			player.velX = -player.speed;
+		} else if(inputStates.up) {
+			player.velY = -player.speed;
+			player.velX = 0;
+		} else if(inputStates.down) {
+			player.velY = player.speed;
+			player.velX = 0;
+		} else { // space. Parar a pacman
+			player.velX = 0;
+			player.velY = 0;
+		}
 	};
  
 	var mainLoop = function(time){
@@ -93,8 +132,20 @@ var GF = function(){
 
 	var addListeners = function(){
 		// add the listener to the main, window object, and update the states
-		// test4
-		// Tu código aquí
+		window.addEventListener('keydown', (event) => {
+			const keyName = event.key;
+			if (keyName === 'ArrowDown') {
+			  inputStates.down = true;
+			} else if (keyName === 'ArrowLeft') {
+			  inputStates.left = true;
+			} else if (keyName === 'ArrowRight') {
+			  inputStates.right = true;
+			} else if (keyName === 'ArrowUp') {
+			  inputStates.up = true;
+			} else if (keyName === ' ') {
+			  inputStates.space = true;
+			} else {}
+		  }, false);
 	};
 
 	var start = function(){
@@ -192,8 +243,3 @@ test('Movimiento hacia arriba OK', function(assert) {
   }, 1000);
 
 }); };
-
-
-
-
-  //]]>

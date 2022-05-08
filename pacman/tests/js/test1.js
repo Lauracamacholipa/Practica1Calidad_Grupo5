@@ -14,11 +14,13 @@ var GF = function(){
 
 		// test1
 		// Tu código aquí
-    var rndX = Math.floor(Math.random() * w);
+    	var rndX = Math.floor(Math.random() * w);
 		var rndY = Math.floor(Math.random() * h);
 		ctx.beginPath();
-		ctx.arc(rndX, rndY, 5, 0, 2 * Math.PI);
-		ctx.strokeStyle = '#FF0000';
+		ctx.arc(rndX,rndY,5,0,2*Math.PI, true);
+		ctx.fillStyle = 'green';
+		ctx.strokeStyle = 'green';
+		ctx.fill();
 		ctx.stroke();
 
 		requestAnimationFrame(mainLoop);

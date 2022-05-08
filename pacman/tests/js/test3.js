@@ -14,7 +14,7 @@ var GF = function(){
 	var frameCount = 0;
 	var lastTime;
 	var fpsContainer;
-	var fps; 
+	var fps;
   
 	var Pacman = function() {
 		this.radius = 15;
@@ -23,28 +23,43 @@ var GF = function(){
 		this.speed = 5;
 		this.angle1 = 0.25;
 		this.angle2 = 1.75;
+		this.derecha = true;
 	};
 	Pacman.prototype.move = function() {
-		// test3
-		// Tu código aquí
-
-		this.posX += this.speed
+		
+		if(this.derecha) {
+			if(this.posX + this.radius*2 + this.speed <= w) {
+				this.posX += this.speed;
+			} else {
+				this.derecha = false;
+				this.angle1 = 0.75;
+				this.angle2 = 1.25;
+			}
+		} else {
+			if(this.posX - this.speed >= 0) {
+				this.posX -= this.speed;
+			} else {
+				this.derecha = true;
+				this.angle1 = 0.25;
+				this.angle2 = 1.75;
+			}	
+		}	
 	};
 
 	// Función para pintar el Pacman
-	Pacman.prototype.draw = function(x, y) {     
+	Pacman.prototype.draw = function() {     
 		// Pac Man
 		// test2   
 		// Tu código aquí
 		// ojo: en el test2 esta función se llama drawPacman(x,y))  	
-		
-		var rad = 15 
 		ctx.beginPath();
-		ctx.arc(x+rad /*25*/, y+rad /*115*/, rad, 0.25 * Math.PI, 0.75 * Math.PI, true);
-		ctx.fillStyle = "#FFFF00";
+		ctx.moveTo(this.posX + this.radius,this.posY + this.radius);
+		ctx.arc(this.posX + this.radius,this.posY + this.radius,this.radius,this.angle1*Math.PI,this.angle2*Math.PI,!this.derecha);
+		ctx.fillStyle = '#FFFF00';
+		ctx.strokeStyle = 'black';
+		ctx.closePath();
 		ctx.fill();
-		ctx.strokeStyle = '#FFFF00';
-		ctx.stroke();        
+		ctx.stroke();   
 	}
   
 	// OJO, esto hace a pacman una variable global	
@@ -85,8 +100,8 @@ var GF = function(){
 		// Clear the canvas
 		clearCanvas();
     
-		//pacman.move();
-		pacman.draw(pacman.posX,pacman.posY);
+		pacman.move();
+		pacman.draw();
      
 		// desactivando mainloop para probar los tests unitarios 
 		// call the animation loop every 1/60th of second

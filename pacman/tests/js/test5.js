@@ -1,6 +1,3 @@
-//<![CDATA[
-
-
 // Variables globales de utilidad
 var canvas = document.querySelector("canvas");
 var ctx = canvas.getContext("2d");
@@ -17,7 +14,7 @@ var GF = function(){
   var fps; 
  
 	//  variable global temporalmente para poder testear el ejercicio
-	inputStates = {};
+    inputStates = { left: false, up: false, right: false, down: false, space: false };
 
 	var Level = function(ctx) {
 		this.ctx = ctx;
@@ -30,25 +27,59 @@ var GF = function(){
 		this.powerPelletBlinkTimer = 0;
 
 		this.setMapTile = function(row, col, newValue){
-  		// test5
-			// tu código aquí
+			this.map[row][col] = newValue;
 		};
 
 		this.getMapTile = function(row, col){
-  		// test5
-			// tu código aquí	
+			return this.map[row][col];
 		};
 
 		this.printMap = function(){
-  		// test5
-			// tu código aquí
+			for (var i = 0; i < thisLevel.lvlHeight; i++) {
+				var current = '';
+				for (var j = 0; j < thisLevel.lvlWidth; j++) {
+					current += thisLevel.getMapTile(i,j) + ' ';
+				}
+				console.log(current)
+			}
 		};
 
 		this.loadLevel = function(){
-  		// test5
-    	// Tu código aquí
-			// leer res/levels/1.txt y guardarlo en el atributo map	
-			// haciendo uso de setMapTile
+			jQuery.ajax({
+				url : "https://raw.githubusercontent.com/AinhoY/froga/main/1.txt",
+		        dataType: "text",
+		        success : function (data) {
+		            var lineas = data.split("\n");
+		            var inicio = fin = false;
+		            var row = 0;
+		            for (var i = 0; i < lineas.length; i++) {
+		            	if(lineas[i].includes("lvlwidth"))
+		            		thisLevel.lvlWidth = lineas[i].split(" ").slice(-1).pop();
+
+		            	else if(lineas[i].includes("lvlheight"))
+		            		thisLevel.lvlHeight = lineas[i].split(" ").slice(-1).pop();
+
+		            	else if(lineas[i].includes("startleveldata"))
+		            		inicio = true;
+
+		            	else if(lineas[i].includes("endleveldata"))
+		            		fin = true;
+
+		            	else if(inicio && !fin) {
+		            		var fila = lineas[i].split(" ");
+		            		for (var j = 0; j < fila.length; j++) {
+							    if(fila[j] != "") {
+							    	if(thisLevel.map[row] === undefined)
+							    		thisLevel.map[row] = [];
+							    	thisLevel.setMapTile(row,j,fila[j]);
+							    }
+							}
+		            		row++;
+		            	}
+
+		            }
+		        }
+    		});
 		};
 
 
@@ -63,16 +94,43 @@ var GF = function(){
 		this.angle2 = 1.75;
 	};
 	Pacman.prototype.move = function() {
-		// test4
-		// tu código aquí
+		if(inputStates.right) {
+			if(this.x + this.radius*2 + this.velX <= w) {
+			  this.x += this.velX;
+			  this.angle1 = 0.25;
+			  this.angle2 = 1.75;
+			}
+		} else if(inputStates.left) {
+			if(this.x + this.velX >= 0) {
+				this.x += this.velX;
+				this.angle1 = 1.25;
+				this.angle2 = 0.75;
+		}
+		} else if(inputStates.down) {
+			if(this.y + this.radius*2 + this.velY <= h) {
+				this.y += this.velY;
+				this.angle1 = 0.75;
+				this.angle2 = 0.25;
+		}
+		} else if(inputStates.up) {
+			if(this.y + this.velY >= 0) {
+				this.y += this.velY;
+				this.angle1 = 1.75;
+				this.angle2 = 1.25;
+		}
+		}
 	};
 
   // Función para pintar el Pacman
 	Pacman.prototype.draw = function(x, y) {   
-		// Pac Man
-		// test2   
-		// Tu código aquí
-		// ojo: en el test2 esta función se llama drawPacman(x,y))   
+    	ctx.beginPath();
+	    ctx.moveTo(this.x + this.radius,this.y + this.radius);
+	    ctx.arc(this.x + this.radius,this.y + this.radius,this.radius,this.angle1*Math.PI,this.angle2*Math.PI,false);
+	    ctx.fillStyle = '#FFFF00';
+	    ctx.strokeStyle = 'black';
+	    ctx.closePath();
+	    ctx.fill();
+	    ctx.stroke(); 
 	};
 
 	var player = new Pacman();
@@ -117,8 +175,22 @@ var GF = function(){
 	};
 
 	var checkInputs = function(){
-		// test4
-		// Tu código aquí	
+		if(inputStates.right) {
+			player.velY = 0;
+			player.velX = player.speed;
+		} else if(inputStates.left) {
+			player.velY = 0;
+			player.velX = -player.speed;
+		} else if(inputStates.up) {
+			player.velY = -player.speed;
+			player.velX = 0;
+		} else if(inputStates.down) {
+			player.velY = player.speed;
+			player.velX = 0;
+		} else { // space. Parar a pacman
+			player.velX = 0;
+			player.velY = 0;
+		}
 	};
  
 	var mainLoop = function(time){
@@ -136,9 +208,21 @@ var GF = function(){
 	};
 
 	var addListeners = function(){
-		//add the listener to the main, window object, and update the states
-		// test4
-    // Tu código aquí
+		// add the listener to the main, window object, and update the states
+		window.addEventListener('keydown', (event) => {
+			const keyName = event.key;
+			if (keyName === 'ArrowDown') {
+			  inputStates.down = true;
+			} else if (keyName === 'ArrowLeft') {
+			  inputStates.left = true;
+			} else if (keyName === 'ArrowRight') {
+			  inputStates.right = true;
+			} else if (keyName === 'ArrowUp') {
+			  inputStates.up = true;
+			} else if (keyName === ' ') {
+			  inputStates.space = true;
+			} else {}
+		  }, false);
    };
 
 
@@ -182,7 +266,3 @@ test('Mapa correctamente cargado', function(assert) {
   }, 1000);
 
 });
-
-
-
-  //]]>
