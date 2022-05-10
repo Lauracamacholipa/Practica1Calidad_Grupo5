@@ -49,23 +49,25 @@
             this.homeY = 0;
     
             this.draw = function(){
-                this.ctx.beginPath();
 
+                // cuerpo
+                this.ctx.beginPath();
                 this.ctx.moveTo(this.x,this.y+TILE_HEIGHT);
                 this.ctx.quadraticCurveTo(this.x+(TILE_WIDTH/2),this.y/1,this.x+TILE_WIDTH,this.y+TILE_HEIGHT);
                 this.ctx.fillStyle = ghostcolor[this.id];
                 this.ctx.closePath();
                 this.ctx.fill();
-    
-                this.ctx.beginPath();
+
+                // ojo izquierdo
                 this.ctx.fillStyle = '#fff';
+                this.ctx.beginPath();
                 this.ctx.arc(this.x+(TILE_WIDTH/4),this.y+(TILE_WIDTH/2),4,0,2*Math.PI,true);
                 this.ctx.fill();
-    
+                // ojo izquierdo
                 this.ctx.beginPath();
                 this.ctx.arc(this.x+(2*TILE_WIDTH/4),this.y+(TILE_WIDTH/2),4,0,4*Math.PI,true);
                 this.ctx.fill();
-    
+
     
             }; // draw
     
@@ -272,7 +274,6 @@
                 // Gestiona las puertas teletransportadoras
                 for (var r = row-1; r < row+2; r++) {
                     for (var c = col-1; c < col+2; c++) {
-                        // He puesto "Math.abs(playerX - (c * thisGame.TILE_WIDTH)) < 4)", pero no sé qué poner
                         if((Math.abs(playerX - (c * thisGame.TILE_WIDTH)) < thisGame.TILE_WIDTH) && (Math.abs(playerY - (r * thisGame.TILE_HEIGHT)) < thisGame.TILE_HEIGHT)) {
                             valor = thisLevel.getMapTile(r, c);
                             if (valor == tileID["door-h"]) {
