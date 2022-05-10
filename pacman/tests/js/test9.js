@@ -27,11 +27,15 @@ var GF = function(){
 		this.powerPelletBlinkTimer = 0;
 
 		this.setMapTile = function(row, col, newValue){
-			this.map[row][col] = newValue;
+			if(this.map[row]) {
+				this.map[row][col] = newValue;
+			}
 		};
 	
 		this.getMapTile = function(row, col){
-			return this.map[row][col];
+			if(this.map[row]) {
+				return this.map[row][col];
+			}
 		};
 	
 		this.printMap = function(){
@@ -54,7 +58,7 @@ var GF = function(){
 	
 				// Altura
 				valores = trozos[2].split(" ");
-				this.lvlHeight = trozos[2].split(" ");
+				this.lvlHeight = trozos[2].split(" ")[2];
 	
 				// Valores del mapa
 				valores = trozos[3].split("\n");
@@ -65,7 +69,9 @@ var GF = function(){
 					var current = filas[i].split(" ");
 					this.map[i] = [];
 					for (var j = 0; j < current.length; j++) {
-						this.setMapTile(i, j, current[j]);
+						if(current[j] != "") {
+							this.setMapTile(i, j, parseInt(current[j]));
+						}
 					}
 				}
 			});
@@ -87,7 +93,8 @@ var GF = function(){
             } else {
                 this.powerPelletBlinkTimer = 0;
             }
-	
+			
+			
 			for (var row = 0; row < thisGame.screenTileSize[0]; row++) {
 				for (var col = 0; col < thisGame.screenTileSize[1]; col++) {
 					var type = this.getMapTile(row, col);
@@ -99,7 +106,9 @@ var GF = function(){
 						ctx.beginPath();
 						ctx.arc(col * TILE_WIDTH + (TILE_WIDTH / 2), row * TILE_HEIGHT + (TILE_HEIGHT / 2), 4, 0, 2 * Math.PI, false);
 						ctx.fillStyle = "#FFFFFF";
+						ctx.stroke();
 						ctx.fill();
+						thisLevel.pellets = thisLevel.pellets + 1;
 					} else if (type == 3) {
 						//Pildora de poder
 						if (this.powerPelletBlinkTimer < 30) {
@@ -107,6 +116,7 @@ var GF = function(){
 							ctx.arc(col * TILE_WIDTH + (TILE_WIDTH / 2), row * TILE_HEIGHT + (TILE_HEIGHT / 2), 4, 0, 2 * Math.PI, false);
 							ctx.fillStyle = "#FF0000";
 							ctx.fill();
+							this.powerPelletBlinkTimer = this.powerPelletBlinkTimer + 1;
 						}
 					} else if (type >= 100 && type < 200) {
 						//Pared
@@ -134,6 +144,7 @@ var GF = function(){
 	
 		this.checkIfHitWall = function(possiblePlayerX, possiblePlayerY, row, col){
 			var wall = false;
+			// Para mirar los bloques que lo rodean
 			for (var r = row-1; r < row+2; r++) {
 				for (var c = col-1; c < col+2; c++) {
 					// Mirar si pacman está por pasar a otro bloque
@@ -176,7 +187,8 @@ var GF = function(){
 			// Gestiona las puertas teletransportadoras
 			for (var r = row-1; r < row+2; r++) {
 				for (var c = col-1; c < col+2; c++) {
-					if((Math.abs(playerX - (c * thisGame.TILE_WIDTH)) < 4) && (Math.abs(playerY - (r * thisGame.TILE_HEIGHT)) < 4)) {
+					// He puesto "Math.abs(playerX - (c * thisGame.TILE_WIDTH)) < 4)", pero no sé qué poner
+					if((Math.abs(playerX - (c * thisGame.TILE_WIDTH)) < thisGame.TILE_WIDTH) && (Math.abs(playerY - (r * thisGame.TILE_HEIGHT)) < thisGame.TILE_HEIGHT)) {
 						valor = thisLevel.getMapTile(r, c);
 						if (valor == tileID["door-h"]) {
 							if(player.velX > 0) {
@@ -362,7 +374,7 @@ var GF = function(){
      
 		checkInputs();
  
-		player.move();
+		//player.move();
 		// Clear the canvas
 		clearCanvas();
    
@@ -446,6 +458,8 @@ test('Puertas teletransportadoras (i)', function(assert) {
   	setTimeout(function() {
 		player.x = 459;
 		player.y = 288;
+		player.velY = 0;
+		player.velX = player.speed;
 		var row = 12;
 		var col = 19;
 		thisLevel.checkIfHitSomething(player.x, player.y, row, col); // Pacman entra por la puerta lateral derecha
@@ -462,6 +476,8 @@ test('Puertas teletransportadoras (ii)', function(assert) {
   	setTimeout(function() {
 		player.x = 21;
 		player.y = 288;
+		player.velY = 0;
+       	player.velX = -1*player.speed;
 		var row = 12;
 		var col = 1;
 		thisLevel.checkIfHitSomething(player.x, player.y, row, col); // Pacman entra por la puerta lateral izquierda 
@@ -480,6 +496,8 @@ test('Puertas teletransportadoras (iii)', function(assert) {
   	setTimeout(function() {
 		player.x = 240;
 		player.y = 21;
+		player.velY = -1*player.speed;
+       	player.velX = 0;
 		var row = 1;
 		var col = 10;
 		thisLevel.checkIfHitSomething(player.x, player.y, row, col); // Pacman entra por la puerta superior  
@@ -496,6 +514,8 @@ test('Puertas teletransportadoras (iv)', function(assert) {
   	setTimeout(function() {
 		player.x = 240;
 		player.y = 555;
+		player.velY = player.speed;
+    	player.velX = 0;
 		var row = 23;
 		var col = 10;
 		thisLevel.checkIfHitSomething(player.x, player.y, row, col); // Pacman entra por la puerta inferior
