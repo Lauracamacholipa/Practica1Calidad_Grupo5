@@ -530,13 +530,19 @@ var GF = function(){
 		// Tu código aquí
   	// TODO Actualizar thisGame.ghostTimer (y el estado de los fantasmas, tal y como se especifica en el enunciado)
 
+		console.log("ghostTimer: " + thisGame.ghostTimer)
 		if (thisGame.ghostTimer > 1){
 			thisGame.ghostTimer -= 1;
 		} else if (thisGame.ghostTimer == 1){
 			thisGame.ghostTimer = 0;
-			for (let ghost in ghosts) {
-				ghost.state = Ghost.NORMAL;
+			/*for (let ghost in ghosts) {
+				ghost.state = Ghost.NORMAL; }
+			Mismo warning de antes: Value assigned to primitive will be lost, y no funciona */
+
+			for (let i = 0; i < numGhosts; i++){
+				ghosts[i].state = Ghost.NORMAL;
 			}
+
 		}
 
 	};
@@ -627,6 +633,8 @@ var GF = function(){
 		// Tu código aquí
 		// probablemente necesites inicializar los atributos de los fantasmas
 		// (x,y,velX,velY,state, speed)
+
+		thisGame.ghostTimer = 360;
 
 		for (var i=0; i< numGhosts; i++){
 			ghosts[i].x = ghosts[i].homeX;
