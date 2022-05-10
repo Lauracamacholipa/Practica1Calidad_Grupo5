@@ -49,7 +49,7 @@ var GF = function(){
 		this.homeX = 0;
 		this.homeY = 0;
 
-		this.state;
+		this.state = Ghost.NORMAL;
 		this.ghostBlinkTimer = 0;
 
 		this.draw = function(){
@@ -299,8 +299,13 @@ var GF = function(){
 						} else if (valor == tileID.pelletpower){
 							console.log("pwr")
 							thisLevel.setMapTile(r, c, 0);
-							for (let ghost in ghosts){
-								ghost.state = Ghost.VULNERABLE;
+
+							/* for (let ghost in ghosts){
+								ghost['state'] = Ghost.VULNERABLE; }
+							Da warning: Value assigned to primitive will be lost, y no funciona */
+
+							for (let i = 0; i < numGhosts; i++){
+								ghosts[i].state = Ghost.VULNERABLE;
 								console.log("vuln!")
 							}
 							thisGame.ghostTimer = 360;
