@@ -332,7 +332,8 @@
             } else {
                 this.velX = 0;
                 this.velY = 0;
-            }        
+            }
+            thisLevel.checkIfHitSomething(this.x, this.y, this.nearestRow, this.nearestCol);
         };
     
         // Función para pintar el Pacman

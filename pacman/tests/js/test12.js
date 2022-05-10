@@ -280,6 +280,7 @@ var GF = function(){
 				'door-h' : 20,
 				'door-v' : 21,
 				'pellet-power' : 3,
+				'pelletpower' : 3,
 				'pellet': 2
 			};
 
@@ -289,13 +290,14 @@ var GF = function(){
 					// Mirar si hemos tocado una píldora
 					if((Math.abs(playerX - (c * thisGame.TILE_WIDTH)) < 4) && (Math.abs(playerY - (r * thisGame.TILE_HEIGHT)) < 4)) {
 						valor = thisLevel.getMapTile(r, c);
-						if (valor === tileID['pellet']) {
+						if (valor == tileID.pellet) {
 							thisLevel.setMapTile(r, c, 0);
 							thisLevel.pellets--;
 							if(thisLevel.pellets === 0) {
 								console.log("Next level!");
 							}
-						} else if (valor === tileID['pellet-power']){
+						} else if (valor == tileID.pelletpower){
+							console.log("pwr")
 							thisLevel.setMapTile(r, c, 0);
 							for (let ghost in ghosts){
 								ghost.state = Ghost.VULNERABLE;
@@ -313,6 +315,7 @@ var GF = function(){
 					if((Math.abs(playerX - (c * thisGame.TILE_WIDTH)) < thisGame.TILE_WIDTH) && (Math.abs(playerY - (r * thisGame.TILE_HEIGHT)) < thisGame.TILE_HEIGHT)) {
 						valor = thisLevel.getMapTile(r, c);
 						if (valor == tileID["door-h"]) {
+
 							if(player.velX > 0) {
 								// Puerta de la derecha
 								console.log("Door right");
@@ -353,8 +356,8 @@ var GF = function(){
 		this.speed = 3;
 		this.angle1 = 0.25;
 		this.angle2 = 1.75;
-		this.homeX = 0;
-		this.homeY = 0;
+		this.homeX = 0;//2*TILE_WIDTH;
+		this.homeY = 0;//2*TILE_WIDTH;
 		this.nearestRow = 0;
 		this.nearestCol = 0;
 	};
@@ -375,6 +378,7 @@ var GF = function(){
 			this.velX = 0;
 			this.velY = 0;
 		}
+		thisLevel.checkIfHitSomething(this.x, this.y, this.nearestRow, this.nearestCol);
 	};
 
 	// Función para pintar el Pacman
