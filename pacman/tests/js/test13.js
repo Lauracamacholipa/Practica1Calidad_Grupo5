@@ -659,7 +659,7 @@ var GF = function () {
     return {
         start: start,
         ghosts: ghosts,
-        ghost: Ghost, // exportando Ghost para poder probarla
+        Ghost: Ghost, // exportando Ghost para poder probarla
         thisLevel: thisLevel
     };
 };
@@ -674,7 +674,7 @@ test('Gafas', function (assert) {
 
     setTimeout(function () {
         for (var i = 0; i < 4; i++) {
-            game.ghosts[i].state = 3;//game.Ghost.SPECTACLES; // ponemos el estado de los fantasmas a modo SPECTACLES
+            game.ghosts[i].state = game.Ghost.SPECTACLES; // ponemos el estado de los fantasmas a modo SPECTACLES
             game.ghosts[i].velX = game.ghosts[i].speed;
             game.ghosts[i].velY = game.ghosts[i].speed;
         }
@@ -685,7 +685,7 @@ test('Gafas', function (assert) {
     var done = assert.async();
     setTimeout(function () {
         for (var i = 0; i < 4; i++) {
-            assert.ok(game.ghosts[1].state === 1,//game.Ghost.NORMAL,
+            assert.ok(game.ghosts[1].state === game.Ghost.NORMAL,
                 "Los fantasmas vuelven a su estado normal");
         }
         done();
