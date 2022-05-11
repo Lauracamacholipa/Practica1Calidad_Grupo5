@@ -328,7 +328,7 @@ var GF = function () {
 
                                 for (let i = 0; i < numGhosts; i++) {
                                     ghosts[i].state = Ghost.VULNERABLE;
-                                    thisGame.ghostTimer = 3600;
+                                    thisGame.ghostTimer = 360;
                                 }
                             }
                         }
@@ -666,7 +666,7 @@ var GF = function () {
             ghosts[i].y = ghosts[i].homeY;
             ghosts[i].velY = 0;
             ghosts[i].velX = -ghosts[i].speed;
-            ghosts[i].stateBlinkTimer = 3600;
+            ghosts[i].stateBlinkTimer = 360;
         }
 
     };
