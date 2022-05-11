@@ -7,6 +7,10 @@ var ctx = canvas.getContext("2d");
 var w = canvas.width;
 var h = canvas.height;
 
+// Incializar las variables de las puntuaciones
+var puntos_comer_pildora = 10;
+var comer_fantasmas = 100;
+
 // GAME FRAMEWORK 
 var GF = function () {
 	// variables para contar frames/s, usadas por measureFPS
@@ -14,6 +18,7 @@ var GF = function () {
 	var lastTime;
 	var fpsContainer;
 	var fps;
+
 
 	//  variable global temporalmente para poder testear el ejercicio
 	inputStates = { left: false, up: false, right: false, down: false, space: false };
@@ -196,7 +201,7 @@ var GF = function () {
 					this.map[i] = [];
 					for (var j = 0; j < current.length; j++) {
 						if (current[j] !== "") {
-							if(current[j]===2) {
+							if(current[j]==2) {
 								thisLevel.pellets++;
 							}
 							this.setMapTile(i, j, parseInt(current[j]));
@@ -262,6 +267,9 @@ var GF = function () {
 					}
 				}
 			}
+
+			displayScore();
+
 		};
 
 		this.isWall = function (row, col) {
@@ -317,8 +325,10 @@ var GF = function () {
 							if (valor === tileID['pellet']) {
 								thisLevel.setMapTile(r, c, 0);
 								thisLevel.pellets--;
-								if (thisLevel.pellets === 0) {
-									console.log("Next level!");
+								thisGame.addToScore(puntos_comer_pildora);
+								if (thisLevel.pellets == 0) {
+									console.log("Has ganado");
+									thisGame.setMode(thisGame.WIN);
 								}
 							} else if (valor === tileID['pellet-power']) {
 								thisLevel.setMapTile(r, c, 0);
@@ -355,7 +365,6 @@ var GF = function () {
 					}
 				}
 			}
-
 		};
 
 	}; // end Level
@@ -384,8 +393,15 @@ var GF = function () {
 					if (ghosts[i].state === Ghost.VULNERABLE) {
 						ghosts[i].velX = ghosts[i].velY = 0;
 						ghosts[i].state = Ghost.SPECTACLES;
+						thisGame.addToScore(comer_fantasmas);
 					} else if (ghosts[i].state === Ghost.NORMAL){
-						thisGame.setMode(thisGame.HIT_GHOST);
+						thisGame.lifes--; // Quitamos una vida
+						if (thisGame.lifes > 0) {
+							thisGame.setMode(thisGame.HIT_GHOST);
+						} else {
+							thisGame.lifes = 0;
+							thisGame.setMode(thisGame.GAME_OVER);
+						}
 					}
 				}
 			}
@@ -438,15 +454,23 @@ var GF = function () {
 			this.mode = mode;
 			this.modeTimer = 0;
 		},
+		addToScore: function(puntos) {
+            this.points = this.points + puntos;
+        },
 		screenTileSize: [25, 21],
 		TILE_WIDTH: 24,
 		TILE_HEIGHT: 24,
 		ghostTimer: 0,
+		lifes: 3,
+		points: 0,
+		highscore: 0,
+
 
 		NORMAL : 1,
 		HIT_GHOST : 2,
 		GAME_OVER : 3,
 		WAIT_TO_START: 4,
+		WIN: 5, // Se ha añadido nuevo estado para cuando PACMAN coma todos los pellets, aparezca un mensaje
 		modeTimer: 0
 	};
 
@@ -595,69 +619,113 @@ var GF = function () {
 		}
 	};
 
-	var mainLoop = function (time) {
-		//main function, called each frame
-		measureFPS(time);
+	var mainLoop = function(time) {
 
-		if (thisGame.mode === thisGame.NORMAL) {
-			checkInputs();
+        // Cuando el juego esté en marcha
+        if (thisGame.mode != thisGame.GAME_OVER && thisGame.mode != thisGame.WIN && thisGame.mode != thisGame.PAUSE) {
 
-			for (var i = 0; i < numGhosts; i++) {
-				ghosts[i].move();
-			}
+            measureFPS(time);
 
-			player.move();
-		}
+			// En caso de que no haya pasado nada
+            if (thisGame.mode == thisGame.NORMAL) {
+                checkInputs();
 
-		// Clear the canvas
-		clearCanvas();
+                // Mover fantasmas
+                for (var i = 0; i < numGhosts; i++) {
+                    ghosts[i].move();
+                }
 
-		thisLevel.drawMap();
+                player.move();
+            }
 
-		for (var i = 0; i < numGhosts; i++) {
-			ghosts[i].draw();
-		}
+            // Pacman ha chocado con los fantasmas
+            if (thisGame.mode == thisGame.HIT_GHOST) {
+                if (thisGame.modeTimer == 90) {
+                    thisGame.mode = thisGame.WAIT_TO_START;
+                }
+            }
 
-		player.draw();
+            // en modo WAIT_TO_START
+            if (thisGame.mode == thisGame.WAIT_TO_START) {
+                reset();
+                if (thisGame.modeTimer == 30) {
+                    requestAnimationFrame(mainLoop);
+                }
+            }
 
-		updateTimers();
+            // Clear the canvas
+            clearCanvas();
 
-		// call the animation loop every 1/60th of second
-		requestAnimationFrame(mainLoop);
-	};
+            thisLevel.drawMap();
+
+            // Pintar fantasmas
+            for (var i = 0; i < numGhosts; i++) {
+                ghosts[i].draw();
+            }
+
+            player.draw();
+
+            updateTimers();
+            // call the animation loop every 1/60th of second
+            requestAnimationFrame(mainLoop);
+
+        } else if (thisGame.mode == thisGame.GAME_OVER || thisGame.mode == thisGame.WIN) { // En caso de que el juego haya terminado
+
+            // Clear the canvas
+            clearCanvas();
+
+            thisLevel.drawMap();
+
+            // Pintar fantasmas
+            for (var i = 0; i < numGhosts; i++) {
+                ghosts[i].draw();
+            }
+
+            player.draw();
+
+        }
+    }
 
 	var addListeners = function () {
 		// Para para al personaje también se trata el 'onKeyUp'
 		window.addEventListener('keydown', (event) => {
-			event.preventDefault();
 			const keyName = event.key;
 			if (keyName === 'ArrowDown') {
 				inputStates.down = true;
+				event.preventDefault();
 			} else if (keyName === 'ArrowLeft') {
 				inputStates.left = true;
+				event.preventDefault();
 			} else if (keyName === 'ArrowRight') {
 				inputStates.right = true;
+				event.preventDefault();
 			} else if (keyName === 'ArrowUp') {
 				inputStates.up = true;
+				event.preventDefault();
 			} else if (keyName === ' ') {
 				inputStates.space = true;
+				event.preventDefault();
 			} else {
 			}
 		}, false);
 
 		window.addEventListener('keyup', (event) => {
-			event.preventDefault();
 			const keyName = event.key;
 			if (keyName === 'ArrowDown') {
 				inputStates.down = false;
+				event.preventDefault();
 			} else if (keyName === 'ArrowLeft') {
 				inputStates.left = false;
+				event.preventDefault();
 			} else if (keyName === 'ArrowRight') {
 				inputStates.right = false;
+				event.preventDefault();
 			} else if (keyName === 'ArrowUp') {
 				inputStates.up = false;
+				event.preventDefault();
 			} else if (keyName === ' ') {
 				inputStates.space = false;
+				event.preventDefault();
 			} else {
 			}
 		}, false);
@@ -693,11 +761,48 @@ var GF = function () {
 			ghosts[i].velY = 0;
 			ghosts[i].velX = -ghosts[i].speed;
 			ghosts[i].stateBlinkTimer = 360;
+			ghosts[i].homeValuesSet = false;
 		}
 
 		// >=test14
 		thisGame.setMode(thisGame.NORMAL);
 	};
+
+	var displayScore = function() {
+        ctx.beginPath();
+        ctx.fillStyle = '#FF0000';
+        ctx.font = "bold 20px arial";
+        ctx.fillText("1UP", 24, 22);
+        ctx.fillText("HIGH SCORE", 290, 22);
+        ctx.fillStyle = '#FFFFFF';
+        ctx.fillText(thisGame.points, 75, 22);
+        ctx.fillText(thisGame.highscore, 450, 22);
+        ctx.fillText("Lifes:", 5, 595);
+
+        for (var i = 0; i < thisGame.lifes; i++) {
+            ctx.beginPath();
+            ctx.arc(72 + 20 * i, 590, 8, 0.25 * Math.PI, 1.75 * Math.PI);
+            ctx.lineTo(72 + 20 * i, 590);
+            ctx.fillStyle = "#FFFF00";
+            ctx.fill();
+            ctx.strokeStyle = "#000000"
+            ctx.lineWidth = 0.5;
+            ctx.stroke();
+        }
+
+        if (thisGame.mode == thisGame.GAME_OVER) {
+            ctx.fillStyle = '#FFFF00';
+            ctx.font = "bold italic 75px arial";
+            ctx.fillText("GAME OVER", 20, 325);
+        }
+
+        if (thisGame.mode == thisGame.WIN) {
+            ctx.fillStyle = '#FFFF00';
+            ctx.font = "bold italic 75px arial";
+            ctx.fillText("HAS GANADO", 10, 325);
+        }
+
+    }
 
 	var start = function () {
 		// adds a div for displaying the fps value
