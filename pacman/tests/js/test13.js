@@ -1,6 +1,3 @@
-//<![CDATA[
-
-
 // Variables globales de utilidad
 var canvas = document.querySelector("canvas");
 var ctx = canvas.getContext("2d");
@@ -16,7 +13,7 @@ var GF = function () {
     var fps;
 
     //  variable global temporalmente para poder testear el ejercicio
-    inputStates = {};
+    inputStates = { left: false, up: false, right: false, down: false, space: false };
 
     const TILE_WIDTH = 24, TILE_HEIGHT = 24;
     var numGhosts = 4;
@@ -50,6 +47,9 @@ var GF = function () {
         this.homeY = 0;
 
         this.state = Ghost.NORMAL;
+        this.stateBlinkTimer = 0;
+
+        this.homeValuesSet = false; // Esta variable nos servirá para saber si los valores del fantasma ya están asignados
 
         this.draw = function () {
 
@@ -62,10 +62,10 @@ var GF = function () {
                 if (this.state === Ghost.NORMAL) {
                     this.ctx.fillStyle = ghostcolor[this.id];
                 } else if (this.state === Ghost.VULNERABLE) {
-                    if (this.ghostTimer > 100) {
+                    if (thisGame.ghostTimer > 100) {
                         this.ctx.fillStyle = ghostcolor[4]; // azul
                     } else {
-                        let lastDigit = this.ghostTimer % 10
+                        let lastDigit = thisGame.ghostTimer % 10
                         if (6 > lastDigit > 0) {
                             this.ctx.fillStyle = ghostcolor[4]; // azul
                         } else {
@@ -76,6 +76,8 @@ var GF = function () {
 
                 this.ctx.closePath();
                 this.ctx.fill();
+            } else {
+                //console.log(this.x, this.y);
             }
 
             this.ctx.closePath();
@@ -119,10 +121,13 @@ var GF = function () {
                 this.y += this.velY;
 
             } else {
-                this.x += this.velX * Math.sign( this.homeX - this.x);
-                this.y += this.velY * Math.sign( this.homeY - this.y);
+                if(this.x < this.homeX) this.x += this.speed;
+				if(this.x > this.homeX) this.x -= this.speed;
+				if(this.y < this.homeY) this.y += this.speed;
+				if(this.y > this.homeY) this.y -= this.speed;
                 if(this.x === this.homeX && this.y === this.homeY) {
                     this.state = Ghost.NORMAL;
+                    this.velY = -this.speed;
                 }
             }
 
@@ -190,6 +195,9 @@ var GF = function () {
                     this.map[i] = [];
                     for (var j = 0; j < current.length; j++) {
                         if (current[j] != "") {
+                            if(current[j]==2) {
+                                thisLevel.pellets++;
+                            }
                             this.setMapTile(i, j, parseInt(current[j]));
                         }
                     }
@@ -229,7 +237,6 @@ var GF = function () {
                         ctx.fillStyle = "#FFFFFF";
                         ctx.stroke();
                         ctx.fill();
-                        thisLevel.pellets = thisLevel.pellets + 1;
                     } else if (type == 3) {
                         //Pildora de poder
                         if (this.powerPelletBlinkTimer < 30) {
@@ -237,15 +244,20 @@ var GF = function () {
                             ctx.arc(col * TILE_WIDTH + (TILE_WIDTH / 2), row * TILE_HEIGHT + (TILE_HEIGHT / 2), 4, 0, 2 * Math.PI, false);
                             ctx.fillStyle = "#FF0000";
                             ctx.fill();
-                            this.powerPelletBlinkTimer = this.powerPelletBlinkTimer + 1;
                         }
                     } else if (type >= 100 && type < 200) {
                         //Pared
+                        ctx.beginPath();
+                        ctx.rect(col*TILE_WIDTH,row*TILE_WIDTH,TILE_WIDTH,TILE_HEIGHT);
                         ctx.fillStyle = '#0000FF';
-                        ctx.fillRect(col * TILE_WIDTH, row * TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT);
+                        ctx.closePath();
+                        ctx.fill();
                     } else if (type >= 10 && type < 14) {
-                        ghosts[type - 10].homeX = col * TILE_WIDTH;
-                        ghosts[type - 10].homeY = row * TILE_HEIGHT;
+                        if (!ghosts[type - 10].homeValuesSet) {
+                            ghosts[type - 10].homeX = col * TILE_WIDTH;
+                            ghosts[type - 10].homeY = row * TILE_HEIGHT;
+                            ghosts[type - 10].homeValuesSet = true;
+                        }
                     }
                 }
             }
@@ -285,7 +297,7 @@ var GF = function () {
             }
         };
 
-        this.checkIfHitSomething = function (playerX, playerY, row, col) {
+        this.checkIfHitSomething = function (instancia, playerX, playerY, row, col) {
             var tileID = {
                 'door-h': 20,
                 'door-v': 21,
@@ -294,63 +306,54 @@ var GF = function () {
             };
 
             //  Gestiona la recogida de píldoras, normales y de poder
-            for (var r = row - 1; r < row + 2; r++) {
-                for (var c = col - 1; c < col + 2; c++) {
-                    // Mirar si hemos tocado una píldora
-                    if ((Math.abs(playerX - (c * thisGame.TILE_WIDTH)) < 4) && (Math.abs(playerY - (r * thisGame.TILE_HEIGHT)) < 4)) {
-                        valor = thisLevel.getMapTile(r, c);
-                        if (valor == tileID['pellet']) {
-                            thisLevel.setMapTile(r, c, 0);
-                            thisLevel.pellets--;
-                            if (thisLevel.pellets === 0) {
-                                console.log("Next level!");
-                            }
-                        } else if (valor == tileID['pellet-power']) {
-                            thisLevel.setMapTile(r, c, 0);
+            // Comprobar que el que se las come es pacman
+            if(instancia instanceof Pacman) {
+                for (var r = row - 1; r < row + 2; r++) {
+                    for (var c = col - 1; c < col + 2; c++) {
+                        // Mirar si hemos tocado una píldora
+                        if ((Math.abs(playerX - (c * thisGame.TILE_WIDTH)) < 4) && (Math.abs(playerY - (r * thisGame.TILE_HEIGHT)) < 4)) {
+                            valor = thisLevel.getMapTile(r, c);
+                            if (valor == tileID['pellet']) {
+                                thisLevel.setMapTile(r, c, 0);
+                                thisLevel.pellets--;
+                                if (thisLevel.pellets === 0) {
+                                    console.log("Next level!");
+                                }
+                            } else if (valor == tileID['pellet-power']) {
+                                thisLevel.setMapTile(r, c, 0);
 
-                            /* for (let ghost in ghosts){
-                                ghost['state'] = Ghost.VULNERABLE; }
-                            Da warning: Value assigned to primitive will be lost, y no funciona */
+                                /* for (let ghost in ghosts){
+                                    ghost['state'] = Ghost.VULNERABLE; }
+                                Da warning: Value assigned to primitive will be lost, y no funciona */
 
-                            for (let i = 0; i < numGhosts; i++) {
-                                ghosts[i].state = Ghost.VULNERABLE;
+                                for (let i = 0; i < numGhosts; i++) {
+                                    ghosts[i].state = Ghost.VULNERABLE;
+                                    thisGame.ghostTimer = 3600;
+                                }
                             }
-                            thisGame.ghostTimer = 360;
                         }
                     }
                 }
             }
 
             // Gestiona las puertas teletransportadoras
-            for (var r = row - 1; r < row + 2; r++) {
-                for (var c = col - 1; c < col + 2; c++) {
-                    if ((Math.abs(playerX - (c * thisGame.TILE_WIDTH)) < thisGame.TILE_WIDTH) && (Math.abs(playerY - (r * thisGame.TILE_HEIGHT)) < thisGame.TILE_HEIGHT)) {
-                        valor = thisLevel.getMapTile(r, c);
-                        if (valor === tileID["door-h"]) {
-                            if (player.velX > 0) {
-                                // Puerta de la derecha
-                                console.log("Door right");
-                                player.x -= (thisGame.screenTileSize[1] - 2) * thisGame.TILE_WIDTH;
-                            } else {
-                                // Puerta de la izquierda
-                                console.log("Door left");
-                                player.x += (thisGame.screenTileSize[1] - 2) * thisGame.TILE_WIDTH;
-                            }
-                        } else if (valor === tileID["door-v"]) {
-                            if (player.velY > 0) {
-                                // Puerta de abajo
-                                console.log("Door down");
-                                player.y -= (thisGame.screenTileSize[0] - 2) * thisGame.TILE_HEIGHT;
-                            } else {
-                                // Puerta de arriba
-                                console.log("Door up");
-                                player.y += (thisGame.screenTileSize[0] - 2) * thisGame.TILE_HEIGHT;
-                            }
-                        }
-                    }
-                }
-            }
+            for (var r = row-1; r < row+2; r++) {
+				for (var c = col-1; c < col+2; c++) {
+					if((Math.abs(playerX - (c * thisGame.TILE_WIDTH)) < 8) && (Math.abs(playerY - (r * thisGame.TILE_HEIGHT)) < 8)) {
+						pos = thisLevel.getMapTile(r, c);
+						if(pos == tileID['door-h']) {
+							console.log("puerta horizontal");
+                            if(instancia.velX > 0) instancia.x -= (thisGame.screenTileSize[1]-2)*thisGame.TILE_WIDTH;
+							else instancia.x += (thisGame.screenTileSize[1]-2)*thisGame.TILE_WIDTH;
 
+						} else if(pos == tileID['door-v']) {
+							console.log("puerta vertical");
+                            if(instancia.velY > 0) instancia.y -= (thisGame.screenTileSize[0]-2)*thisGame.TILE_HEIGHT;
+							else instancia.y += (thisGame.screenTileSize[0]-2)*thisGame.TILE_HEIGHT;
+						}
+					}
+				}
+			}
         };
 
     }; // end Level
@@ -369,10 +372,10 @@ var GF = function () {
     };
 
     Pacman.prototype.move = function () {
-        this.nearestRow = parseInt((this.y + this.radius) / thisGame.TILE_HEIGHT);
-        this.nearestCol = parseInt((this.x + this.radius) / thisGame.TILE_WIDTH);
+        this.nearestRow = parseInt((this.y) / thisGame.TILE_HEIGHT);
+        this.nearestCol = parseInt((this.x) / thisGame.TILE_WIDTH);
 
-        if (!thisLevel.checkIfHitWall(this.x + this.velX, this.y + this.velXY, this.nearestRow, this.nearestCol)) {
+        if (!thisLevel.checkIfHitWall(this.x + this.velX, this.y + this.velY, this.nearestRow, this.nearestCol)) {
             thisLevel.checkIfHitSomething(this, this.x, this.y, this.nearestRow, this.nearestCol);
             for (var i = 0; i < numGhosts; i++) {
                 if (thisLevel.checkIfHit(this.x, this.y, ghosts[i].x, ghosts[i].y, thisGame.TILE_WIDTH / 2)) {
@@ -388,7 +391,7 @@ var GF = function () {
             this.velX = 0;
             this.velY = 0;
         }
-        thisLevel.checkIfHitSomething(this.x, this.y, this.nearestRow, this.nearestCol);
+        //thisLevel.checkIfHitSomething(this.x, this.y, this.nearestRow, this.nearestCol);
     };
 
     // Función para pintar el Pacman
@@ -426,7 +429,7 @@ var GF = function () {
         getLevelNum: function () {
             return 0;
         },
-        screenTileSize: [24, 21],
+        screenTileSize: [25, 21],
         TILE_WIDTH: 24,
         TILE_HEIGHT: 24,
         ghostTimer: 0
@@ -531,17 +534,36 @@ var GF = function () {
     };
 
     var updateTimers = function () {
-        if (thisGame.ghostTimer > 1) {
+        /*if (thisGame.ghostTimer > 1) {
             thisGame.ghostTimer -= 1;
         } else if (thisGame.ghostTimer == 1) {
             thisGame.ghostTimer = 0;
             /*for (let ghost in ghosts) {
                 ghost.state = Ghost.NORMAL; }
             Mismo warning de antes: Value assigned to primitive will be lost, y no funciona */
-            for (let i = 0; i < numGhosts; i++) {
+            /*for (let i = 0; i < numGhosts; i++) {
                 ghosts[i].state = Ghost.NORMAL;
             }
-        }
+        }*/
+
+        var vulnerables = false
+		for (var i=0; i< numGhosts; i++) {
+			if(ghosts[i].state == Ghost.VULNERABLE) vulnerables = true;
+		}
+
+		if(vulnerables) {
+			if(thisGame.ghostTimer > 0) {
+                thisGame.ghostTimer--;
+            } 
+			else {
+				for (var i=0; i< numGhosts; i++){
+                    if(ghosts[i].state !== Ghost.SPECTACLES) { // Si pacman se ha comido al fantasma, primero tiene que volver a casa
+					    ghosts[i].state = Ghost.NORMAL;
+                    }
+				}
+			}
+		}
+
     };
 
     var mainLoop = function (time) {
@@ -578,14 +600,19 @@ var GF = function () {
             const keyName = event.key;
             if (keyName === 'ArrowDown') {
                 inputStates.down = true;
+                event.preventDefault(); // evitar scroll
             } else if (keyName === 'ArrowLeft') {
                 inputStates.left = true;
+                event.preventDefault(); // evitar scroll
             } else if (keyName === 'ArrowRight') {
                 inputStates.right = true;
+                event.preventDefault(); // evitar scroll
             } else if (keyName === 'ArrowUp') {
                 inputStates.up = true;
+                event.preventDefault(); // evitar scroll
             } else if (keyName === ' ') {
                 inputStates.space = true;
+                event.preventDefault(); // evitar scroll
             } else {
             }
         }, false);
@@ -594,14 +621,19 @@ var GF = function () {
             const keyName = event.key;
             if (keyName === 'ArrowDown') {
                 inputStates.down = false;
+                event.preventDefault(); // evitar scroll
             } else if (keyName === 'ArrowLeft') {
                 inputStates.left = false;
+                event.preventDefault(); // evitar scroll
             } else if (keyName === 'ArrowRight') {
                 inputStates.right = false;
+                event.preventDefault(); // evitar scroll
             } else if (keyName === 'ArrowUp') {
                 inputStates.up = false;
+                event.preventDefault(); // evitar scroll
             } else if (keyName === ' ') {
                 inputStates.space = false;
+                event.preventDefault(); // evitar scroll
             } else {
             }
         }, false);
@@ -629,15 +661,12 @@ var GF = function () {
         // probablemente necesites inicializar los atributos de los fantasmas
         // (x,y,velX,velY,state, speed)
 
-        thisGame.ghostTimer = 360;
-
         for (var i = 0; i < numGhosts; i++) {
             ghosts[i].x = ghosts[i].homeX;
             ghosts[i].y = ghosts[i].homeY;
             ghosts[i].velY = 0;
-            ghosts[i].velX = ghosts[i].speed;
-
-            ghosts[i].state = Ghost.NORMAL;
+            ghosts[i].velX = -ghosts[i].speed;
+            ghosts[i].stateBlinkTimer = 3600;
         }
 
     };
@@ -659,8 +688,7 @@ var GF = function () {
     return {
         start: start,
         ghosts: ghosts,
-        Ghost: Ghost, // exportando Ghost para poder probarla
-        thisLevel: thisLevel
+        Ghost: Ghost // exportando Ghost para poder probarla
     };
 };
 
