@@ -471,6 +471,7 @@ var GF = function () {
 		GAME_OVER : 3,
 		WAIT_TO_START: 4,
 		WIN: 5, // Se ha añadido nuevo estado para cuando PACMAN coma todos los pellets, aparezca un mensaje
+		PAUSE: 6, // Se ha añadido nuevo estado para cuando seh aga click en la tecla 'SpaceBar' el juego se pause
 		modeTimer: 0
 	};
 
@@ -506,69 +507,72 @@ var GF = function () {
 	};
 
 	var checkInputs = function () {
-		if (inputStates.left) {
-			// Si no ha chocado con nada, cambiar los valores para que se desplace a la izquierda
-			if (!thisLevel.checkIfHitWall(player.x - player.speed, player.y, player.nearestRow, player.nearestCol)) {
-				player.velY = 0;
-				player.velX = -player.speed;
-				inputStates.up = false;
-				inputStates.down = false;
-				inputStates.right = false;
-			} else {
-				inputStates.up = false;
-				inputStates.left = false;
-				inputStates.right = false;
-				inputStates.down = false;
-			}
+		if(thisGame.mode !== thisGame.PAUSE && !inputStates.space){ // En caso de que no esté en pausa
+			if (inputStates.left) {
+				// Si no ha chocado con nada, cambiar los valores para que se desplace a la izquierda
+				if (!thisLevel.checkIfHitWall(player.x - player.speed, player.y, player.nearestRow, player.nearestCol)) {
+					player.velY = 0;
+					player.velX = -player.speed;
+					inputStates.up = false;
+					inputStates.down = false;
+					inputStates.right = false;
+				} else {
+					inputStates.up = false;
+					inputStates.left = false;
+					inputStates.right = false;
+					inputStates.down = false;
+				}
 
-		} else if (inputStates.up) {
-			if (!thisLevel.checkIfHitWall(player.x, player.y - player.speed, player.nearestRow, player.nearestCol)) {
-				player.velY = -player.speed;
-				player.velX = 0;
-				inputStates.left = false;
-				inputStates.down = false;
-				inputStates.right = false;
-			} else {
-				inputStates.up = false;
-				inputStates.left = false;
-				inputStates.right = false;
-				inputStates.down = false;
-			}
+			} else if (inputStates.up) {
+				if (!thisLevel.checkIfHitWall(player.x, player.y - player.speed, player.nearestRow, player.nearestCol)) {
+					player.velY = -player.speed;
+					player.velX = 0;
+					inputStates.left = false;
+					inputStates.down = false;
+					inputStates.right = false;
+				} else {
+					inputStates.up = false;
+					inputStates.left = false;
+					inputStates.right = false;
+					inputStates.down = false;
+				}
 
-		} else if (inputStates.down) {
-			if (!thisLevel.checkIfHitWall(player.x, player.y + player.speed, player.nearestRow, player.nearestCol)) {
-				player.velY = player.speed;
-				player.velX = 0;
-				inputStates.up = false;
-				inputStates.left = false;
-				inputStates.right = false;
-			} else {
-				inputStates.up = false;
-				inputStates.left = false;
-				inputStates.right = false;
-				inputStates.down = false;
-			}
+			} else if (inputStates.down) {
+				if (!thisLevel.checkIfHitWall(player.x, player.y + player.speed, player.nearestRow, player.nearestCol)) {
+					player.velY = player.speed;
+					player.velX = 0;
+					inputStates.up = false;
+					inputStates.left = false;
+					inputStates.right = false;
+				} else {
+					inputStates.up = false;
+					inputStates.left = false;
+					inputStates.right = false;
+					inputStates.down = false;
+				}
 
-		} else if (inputStates.right) {
-			if (!thisLevel.checkIfHitWall(player.x + player.speed, player.y, player.nearestRow, player.nearestCol)) {
-				player.velY = 0;
-				player.velX = player.speed;
-				inputStates.up = false;
-				inputStates.down = false;
-				inputStates.left = false;
-			} else {
-				inputStates.up = false;
-				inputStates.left = false;
-				inputStates.right = false;
-				inputStates.down = false;
+			} else if (inputStates.right) {
+				if (!thisLevel.checkIfHitWall(player.x + player.speed, player.y, player.nearestRow, player.nearestCol)) {
+					player.velY = 0;
+					player.velX = player.speed;
+					inputStates.up = false;
+					inputStates.down = false;
+					inputStates.left = false;
+				} else {
+					inputStates.up = false;
+					inputStates.left = false;
+					inputStates.right = false;
+					inputStates.down = false;
+				}
 			}
-			// Ha pulsado 'SpaceBar'
-		} else {
-			player.velX = player.velY = 0;
-			inputStates.up = false;
-			inputStates.left = false;
-			inputStates.right = false;
-			inputStates.down = false;
+		} else if (inputStates.space || thisGame.mode === thisGame.PAUSE) {
+			if (thisGame.mode !== thisGame.PAUSE) {
+				thisGame.setMode(thisGame.PAUSE);
+				inputStates.space = false;
+			} else {
+				thisGame.setMode(thisGame.NORMAL);
+				inputStates.space = false;
+			}
 		}
 	};
 
@@ -683,6 +687,26 @@ var GF = function () {
 
             player.draw();
 
+        } else if (thisGame.mode === thisGame.PAUSE) { // En caso de que hayamos pulsado la tecla 'SpaceBar'
+            measureFPS(time);
+
+            checkInputs();
+
+            clearCanvas();
+
+            thisLevel.drawMap();
+
+            // Pintar fantasmas
+            for (var i = 0; i < numGhosts; i++) {
+                ghosts[i].draw();
+            }
+
+            player.draw();
+
+            updateTimers();
+
+            // call the animation loop every 1/60th of second
+            requestAnimationFrame(mainLoop);
         }
     }
 
@@ -722,9 +746,6 @@ var GF = function () {
 				event.preventDefault();
 			} else if (keyName === 'ArrowUp') {
 				inputStates.up = false;
-				event.preventDefault();
-			} else if (keyName === ' ') {
-				inputStates.space = false;
 				event.preventDefault();
 			} else {
 			}
@@ -800,6 +821,12 @@ var GF = function () {
             ctx.fillStyle = '#FFFF00';
             ctx.font = "bold italic 75px arial";
             ctx.fillText("HAS GANADO", 10, 325);
+        }
+
+		if (thisGame.mode == thisGame.PAUSE) {
+            ctx.fillStyle = '#FFFF00';
+            ctx.font = "bold italic 75px arial";
+            ctx.fillText("PAUSE", 20, 325);
         }
 
     }

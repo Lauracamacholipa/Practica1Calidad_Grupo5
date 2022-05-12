@@ -3,6 +3,8 @@ let canvas = document.querySelector("canvas");
 let ctx = canvas.getContext("2d");
 let w = canvas.width;
 let h = canvas.height;
+var oldDirecrion = "right"; // Esta variable nos permitirá en caso de que Pacman quisiera cambiar de dirección y que no se pueda, seguir por la misma dirección
+// Se ha inicializado a right, porque pacman empieza moviendose hacia la derecha
 
 // Incializar las variables de las puntuaciones
 let puntos_comer_pildora = 10;
@@ -176,7 +178,7 @@ let GF = function () {
 		};
 
 		this.loadLevel = function () {
-			$.get("../res/levels/2.txt", (data) => {
+			$.get("https://raw.githubusercontent.com/AinhoY/froga/main/1.txt", (data) => {
 				// Dividir por tipos
 				let trozos = data.split("#");
 
@@ -196,7 +198,8 @@ let GF = function () {
 					this.map[i] = [];
 					for (let j = 0; j < current.length; j++) {
 						if (current[j] !== "") {
-							if(current[j] === 2) {
+							console.log(current[j]);
+							if(current[j] == 2) {
 								thisLevel.pellets++;
 								console.log("pellets: " + thisLevel.pellets)
 							}
@@ -319,10 +322,11 @@ let GF = function () {
 							if (valor === tileID['pellet']) {
 								thisLevel.setMapTile(r, c, 0);
 								thisLevel.pellets--;
+								console.log(thisLevel.pellets);
 								thisGame.addToScore(puntos_comer_pildora);
 								// let sound_eat_pellet = new Audio('../res/sounds/pacman_eatpill.wav');
 								thisGame.sound_eat_pellet.play(); // si falla, descomentar arriba y borrar la declaracion de la 470 aprox
-								if (thisLevel.pellets === 0) {
+								if (thisLevel.pellets == 0) {
 									console.log("Has ganado");
 									thisGame.setMode(thisGame.WIN);
 									// let sound_win = new Audio('../res/sounds/pacman_beginning.wav');
@@ -525,62 +529,81 @@ let GF = function () {
 		ctx.clearRect(0, 0, w, h);
 	};
 
+	let recuperarDireccion = function (key) {
+		// Este método permite cmabiar el valor del inputstate en función de la dirección que tenía antes Pacman
+		if(key === "up") {
+			inputStates.up = true;
+			inputStates.down = false;
+			inputStates.left = false;
+			inputStates.right = false;
+		} else if(key === "down") {
+			inputStates.up = false;
+			inputStates.down = true;
+			inputStates.left = false;
+			inputStates.right = false;
+		} else if(key === "left") {
+			inputStates.up = false;
+			inputStates.down = false;
+			inputStates.left = true;
+			inputStates.right = false;
+		} else if(key === "right") {
+			inputStates.up = false;
+			inputStates.down = false;
+			inputStates.left = false;
+			inputStates.right = true;
+		}
+	}
+
 	let checkInputs = function () {
+		var fila = Math.trunc(player.y / thisGame.TILE_HEIGHT);
+        var colum = Math.trunc(player.x / thisGame.TILE_WIDTH);
 		if (inputStates.left) {
 			// Si no ha chocado con nada, cambiar los valores para que se desplace a la izquierda
-			if (!thisLevel.checkIfHitWall(player.x - player.speed, player.y, player.nearestRow, player.nearestCol)) {
+			if (!thisLevel.checkIfHitWall(player.x - (thisGame.TILE_WIDTH / 2) - 1, player.y, fila, colum)) {
+				oldDirecrion = "left";
 				player.velY = 0;
 				player.velX = -player.speed;
 				inputStates.up = false;
 				inputStates.down = false;
 				inputStates.right = false;
 			} else {
-				inputStates.up = false;
-				inputStates.left = false;
-				inputStates.right = false;
-				inputStates.down = false;
+				recuperarDireccion(oldDirecrion);
 			}
 
 		} else if (inputStates.up) {
-			if (!thisLevel.checkIfHitWall(player.x, player.y - player.speed, player.nearestRow, player.nearestCol)) {
+			if (!thisLevel.checkIfHitWall(player.x, player.y - (thisGame.TILE_HEIGHT / 2) - 1, fila, colum)) {
+				oldDirecrion = "up";
 				player.velY = -player.speed;
 				player.velX = 0;
 				inputStates.left = false;
 				inputStates.down = false;
 				inputStates.right = false;
 			} else {
-				inputStates.up = false;
-				inputStates.left = false;
-				inputStates.right = false;
-				inputStates.down = false;
+				recuperarDireccion(oldDirecrion);
 			}
 
 		} else if (inputStates.down) {
-			if (!thisLevel.checkIfHitWall(player.x, player.y + player.speed, player.nearestRow, player.nearestCol)) {
+			if (!thisLevel.checkIfHitWall(player.x, player.y + (thisGame.TILE_HEIGHT / 2), fila, colum)) {
+				oldDirecrion = "down";
 				player.velY = player.speed;
 				player.velX = 0;
 				inputStates.up = false;
 				inputStates.left = false;
 				inputStates.right = false;
 			} else {
-				inputStates.up = false;
-				inputStates.left = false;
-				inputStates.right = false;
-				inputStates.down = false;
+				recuperarDireccion(oldDirecrion);
 			}
 
 		} else if (inputStates.right) {
-			if (!thisLevel.checkIfHitWall(player.x + player.speed, player.y, player.nearestRow, player.nearestCol)) {
+			if (!thisLevel.checkIfHitWall(player.x + (thisGame.TILE_WIDTH / 2), player.y, fila, player.nearestCol)) {
+				oldDirecrion = "right";
 				player.velY = 0;
 				player.velX = player.speed;
 				inputStates.up = false;
 				inputStates.down = false;
 				inputStates.left = false;
 			} else {
-				inputStates.up = false;
-				inputStates.left = false;
-				inputStates.right = false;
-				inputStates.down = false;
+				recuperarDireccion(oldDirecrion);
 			}
 			// Ha pulsado 'SpaceBar'
 		} else {
@@ -660,7 +683,7 @@ let GF = function () {
 
 			// Pacman ha chocado con los fantasmas
 			if (thisGame.mode === thisGame.HIT_GHOST) {
-				if (thisGame.modeTimer === 90) {
+				if (thisGame.modeTimer == 90) {
 					thisGame.mode = thisGame.WAIT_TO_START;
 				}
 			}
@@ -668,7 +691,7 @@ let GF = function () {
 			// en modo WAIT_TO_START
 			if (thisGame.mode === thisGame.WAIT_TO_START) {
 				reset();
-				if (thisGame.modeTimer === 30) {
+				if (thisGame.modeTimer == 30) {
 					requestAnimationFrame(mainLoop);
 				}
 			}
@@ -710,34 +733,41 @@ let GF = function () {
 		// Para parar al personaje también se trata el 'onKeyUp'
 		window.addEventListener('keydown', (event) => {
 			const keyName = event.key;
-			event.preventDefault();
 			if (keyName === 'ArrowDown') {
 				inputStates.down = true;
+				inputStates.up = false;
+				inputStates.left = false;
+				inputStates.right = false;
+				inputStates.space = false;
+				event.preventDefault();
 			} else if (keyName === 'ArrowLeft') {
 				inputStates.left = true;
+				inputStates.up = false;
+				inputStates.down = false;
+				inputStates.right = false;
+				inputStates.space = false;
+				event.preventDefault();
 			} else if (keyName === 'ArrowRight') {
 				inputStates.right = true;
+				inputStates.up = false;
+				inputStates.down = false;
+				inputStates.left = false;
+				inputStates.space = false;
+				event.preventDefault();
 			} else if (keyName === 'ArrowUp') {
 				inputStates.up = true;
+				inputStates.down = false;
+				inputStates.left = false;
+				inputStates.right = false;
+				inputStates.space = false;
+				event.preventDefault();
 			} else if (keyName === ' ') {
 				inputStates.space = true;
-			} else {
-			}
-		}, false);
-
-		window.addEventListener('keyup', (event) => {
-			const keyName = event.key;
-			event.preventDefault();
-			if (keyName === 'ArrowDown') {
-				inputStates.down = false;
-			} else if (keyName === 'ArrowLeft') {
-				inputStates.left = false;
-			} else if (keyName === 'ArrowRight') {
-				inputStates.right = false;
-			} else if (keyName === 'ArrowUp') {
 				inputStates.up = false;
-			} else if (keyName === ' ') {
-				inputStates.space = false;
+				inputStates.down = false;
+				inputStates.left = false;
+				inputStates.right = false;
+				event.preventDefault();
 			} else {
 			}
 		}, false);
@@ -765,6 +795,12 @@ let GF = function () {
 		thisGame.setMode(thisGame.NORMAL);
 	};
 
+	let iniciarJuegoDeNuevo = function () { // Este método se ejecutará cuando el usuario haga click en una tecla al perder o ganar en el juego
+		window.addEventListener('keydown', (event) => {
+			location.reload();
+		}, false);
+	}
+
 	let displayScore = function() {
 		ctx.beginPath();
 		ctx.fillStyle = '#FF0000';
@@ -791,12 +827,24 @@ let GF = function () {
 			ctx.fillStyle = '#FFFF00';
 			ctx.font = "bold italic 75px arial";
 			ctx.fillText("GAME OVER", 20, 325);
+			// Mensaje para hacer click para continuar
+			ctx.fillStyle = '#FFFF00';
+			ctx.font = "bold italic 20px arial";
+			ctx.fillText("Click any key to continue", 130, 400);
+			ctx.textBaseline = "middle";	
+			iniciarJuegoDeNuevo();
 		}
 
 		if (thisGame.mode === thisGame.WIN) {
 			ctx.fillStyle = '#FFFF00';
 			ctx.font = "bold italic 75px arial";
 			ctx.fillText("HAS GANADO", 10, 325);
+			// Mensaje para hacer click para continuar
+			ctx.fillStyle = '#FFFF00';
+			ctx.font = "bold italic 20px arial";
+			ctx.fillText("Click any key to continue", 130, 400);
+			ctx.textBaseline = "middle";	
+			iniciarJuegoDeNuevo();
 		}
 
 	}
