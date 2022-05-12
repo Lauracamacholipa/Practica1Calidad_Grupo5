@@ -529,31 +529,6 @@ let GF = function () {
 		ctx.clearRect(0, 0, w, h);
 	};
 
-	let recuperarDireccion = function (key) {
-		// Este método permite cmabiar el valor del inputstate en función de la dirección que tenía antes Pacman
-		if(key === "up") {
-			inputStates.up = true;
-			inputStates.down = false;
-			inputStates.left = false;
-			inputStates.right = false;
-		} else if(key === "down") {
-			inputStates.up = false;
-			inputStates.down = true;
-			inputStates.left = false;
-			inputStates.right = false;
-		} else if(key === "left") {
-			inputStates.up = false;
-			inputStates.down = false;
-			inputStates.left = true;
-			inputStates.right = false;
-		} else if(key === "right") {
-			inputStates.up = false;
-			inputStates.down = false;
-			inputStates.left = false;
-			inputStates.right = true;
-		}
-	}
-
 	let checkInputs = function () {
 		var fila = Math.trunc(player.y / thisGame.TILE_HEIGHT);
         var colum = Math.trunc(player.x / thisGame.TILE_WIDTH);
@@ -566,8 +541,6 @@ let GF = function () {
 				inputStates.up = false;
 				inputStates.down = false;
 				inputStates.right = false;
-			} else {
-				recuperarDireccion(oldDirecrion);
 			}
 
 		} else if (inputStates.up) {
@@ -578,8 +551,6 @@ let GF = function () {
 				inputStates.left = false;
 				inputStates.down = false;
 				inputStates.right = false;
-			} else {
-				recuperarDireccion(oldDirecrion);
 			}
 
 		} else if (inputStates.down) {
@@ -590,8 +561,6 @@ let GF = function () {
 				inputStates.up = false;
 				inputStates.left = false;
 				inputStates.right = false;
-			} else {
-				recuperarDireccion(oldDirecrion);
 			}
 
 		} else if (inputStates.right) {
@@ -602,8 +571,6 @@ let GF = function () {
 				inputStates.up = false;
 				inputStates.down = false;
 				inputStates.left = false;
-			} else {
-				recuperarDireccion(oldDirecrion);
 			}
 			// Ha pulsado 'SpaceBar'
 		} else {
