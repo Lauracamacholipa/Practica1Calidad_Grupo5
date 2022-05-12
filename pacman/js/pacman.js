@@ -403,8 +403,8 @@ let GF = function () {
 						thisGame.sound_eat_ghost.play(); // si falla, descomentar arriba y borrar la declaracion de la 470 aprox
 
 					} else if (ghosts[i].state === Ghost.NORMAL){
-						thisGame.lifes--; // Quitamos una vida
-						if (thisGame.lifes > 0) {
+						thisGame.lives--; // Quitamos una vida
+						if (thisGame.lives > 0) {
 							// let sound_die = new Audio('../res/sounds/pacman_death.wav');
 							thisGame.sound_die.play(); // si falla, descomentar arriba y borrar la declaracion de la 470 aprox
 
@@ -413,7 +413,7 @@ let GF = function () {
 							// let sound_lose = new Audio('../res/sounds/pacman_intermission.wav');
 							thisGame.sound_lose.play(); // si falla, descomentar arriba y borrar la declaracion de la 470 aprox
 
-							thisGame.lifes = 0;
+							thisGame.lives = 0;
 							thisGame.setMode(thisGame.GAME_OVER);
 						}
 					}
@@ -475,7 +475,7 @@ let GF = function () {
 		TILE_WIDTH: 24,
 		TILE_HEIGHT: 24,
 		ghostTimer: 0,
-		lifes: 3,
+		lives: 3,
 		points: 0,
 		highscore: 0,
 
@@ -777,9 +777,9 @@ let GF = function () {
 		ctx.fillStyle = '#FFFFFF';
 		ctx.fillText(thisGame.points, 75, 22);
 		ctx.fillText(thisGame.highscore, 450, 22);
-		ctx.fillText("Lifes:", 5, 595);
+		ctx.fillText("Lives:", 5, 595);
 
-		for (let i = 0; i < thisGame.lifes; i++) {
+		for (let i = 0; i < thisGame.lives; i++) {
 			ctx.beginPath();
 			ctx.arc(72 + 20 * i, 590, 8, 0.25 * Math.PI, 1.75 * Math.PI);
 			ctx.lineTo(72 + 20 * i, 590);

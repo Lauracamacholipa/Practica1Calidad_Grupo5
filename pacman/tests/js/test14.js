@@ -395,11 +395,11 @@ var GF = function () {
 						ghosts[i].state = Ghost.SPECTACLES;
 						thisGame.addToScore(comer_fantasmas);
 					} else if (ghosts[i].state === Ghost.NORMAL){
-						thisGame.lifes--; // Quitamos una vida
-						if (thisGame.lifes > 0) {
+						thisGame.lives--; // Quitamos una vida
+						if (thisGame.lives > 0) {
 							thisGame.setMode(thisGame.HIT_GHOST);
 						} else {
-							thisGame.lifes = 0;
+							thisGame.lives = 0;
 							thisGame.setMode(thisGame.GAME_OVER);
 						}
 					}
@@ -461,7 +461,7 @@ var GF = function () {
 		TILE_WIDTH: 24,
 		TILE_HEIGHT: 24,
 		ghostTimer: 0,
-		lifes: 3,
+		lives: 3,
 		points: 0,
 		highscore: 0,
 
@@ -798,9 +798,9 @@ var GF = function () {
         ctx.fillStyle = '#FFFFFF';
         ctx.fillText(thisGame.points, 75, 22);
         ctx.fillText(thisGame.highscore, 450, 22);
-        ctx.fillText("Lifes:", 5, 595);
+        ctx.fillText("Lives:", 5, 595);
 
-        for (var i = 0; i < thisGame.lifes; i++) {
+        for (var i = 0; i < thisGame.lives; i++) {
             ctx.beginPath();
             ctx.arc(72 + 20 * i, 590, 8, 0.25 * Math.PI, 1.75 * Math.PI);
             ctx.lineTo(72 + 20 * i, 590);
