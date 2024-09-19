@@ -3,7 +3,7 @@ let canvas = document.querySelector("canvas");
 let ctx = canvas.getContext("2d");
 let w = canvas.width;
 let h = canvas.height;
-var oldDirecrion = "right"; // Esta variable nos permitirá en caso de que Pacman quisiera cambiar de dirección y que no se pueda, seguir por la misma dirección
+let oldDirecrion = "right"; // Esta variable nos permitirá en caso de que Pacman quisiera cambiar de dirección y que no se pueda, seguir por la misma dirección
 // Se ha inicializado a right, porque pacman empieza moviendose hacia la derecha
 
 // Incializar las variables de las puntuaciones
@@ -110,9 +110,10 @@ let GF = function () {
 				let posiblesMovimientos = [[0, -this.speed], [this.speed, 0], [0, this.speed], [-this.speed, 0]];
 				let soluciones = [];
 
-				for (let i = 0; i < posiblesMovimientos.length; i++) {
-					if (!thisLevel.checkIfHitWall(this.x + posiblesMovimientos[i][0], this.y + posiblesMovimientos[i][1], this.nearestRow, this.nearestCol))
-						soluciones.push(posiblesMovimientos[i]);
+				for (const movimiento of posiblesMovimientos) {
+					if (!thisLevel.checkIfHitWall(this.x + movimiento[0], this.y + movimiento[1], this.nearestRow, this.nearestCol)) {
+						soluciones.push(movimiento);
+					}
 				}
 
 				if (thisLevel.checkIfHitWall(this.x + this.velX, this.y + this.velY, this.nearestRow, this.nearestCol) || soluciones.length === 3) {
@@ -324,17 +325,17 @@ let GF = function () {
 								thisLevel.pellets--;
 								console.log(thisLevel.pellets);
 								thisGame.addToScore(puntos_comer_pildora);
-								// let sound_eat_pellet = new Audio('../res/sounds/pacman_eatpill.wav');
+								
 								thisGame.sound_eat_pellet.play(); // si falla, descomentar arriba y borrar la declaracion de la 470 aprox
 								if (thisLevel.pellets == 0) {
 									console.log("Has ganado");
 									thisGame.setMode(thisGame.WIN);
-									// let sound_win = new Audio('../res/sounds/pacman_beginning.wav');
+									
 									thisGame.sound_win.play(); // si falla, descomentar arriba y borrar la declaracion de la 470 aprox
 								}
 							} else if (valor === tileID['pellet-power']) {
 								thisLevel.setMapTile(r, c, 0);
-								// let sound_eat_pellet = new Audio('../res/sounds/pacman_eatfruit.wav');
+								
 								thisGame.sound_eat_powerpellet.play(); // si falla, descomentar arriba y borrar la declaracion de la 470 aprox
 
 								/* for (let ghost in ghosts){
@@ -399,18 +400,18 @@ let GF = function () {
 						ghosts[i].state = Ghost.SPECTACLES;
 						thisGame.addToScore(comer_fantasmas);
 
-						// let sound_eat_ghost = new Audio('../res/sounds/pacman_eatghost.wav');
+						
 						thisGame.sound_eat_ghost.play(); // si falla, descomentar arriba y borrar la declaracion de la 470 aprox
 
 					} else if (ghosts[i].state === Ghost.NORMAL){
 						thisGame.lives--; // Quitamos una vida
 						if (thisGame.lives > 0) {
-							// let sound_die = new Audio('../res/sounds/pacman_death.wav');
+							
 							thisGame.sound_die.play(); // si falla, descomentar arriba y borrar la declaracion de la 470 aprox
 
 							thisGame.setMode(thisGame.HIT_GHOST);
 						} else {
-							// let sound_lose = new Audio('../res/sounds/pacman_intermission.wav');
+							
 							thisGame.sound_lose.play(); // si falla, descomentar arriba y borrar la declaracion de la 470 aprox
 
 							thisGame.lives = 0;
@@ -425,7 +426,7 @@ let GF = function () {
 			this.velX = 0;
 			this.velY = 0;
 		}
-		//thisLevel.checkIfHitSomething(this.x, this.y, this.nearestRow, this.nearestCol);
+		
 
 	};
 
@@ -500,7 +501,7 @@ let GF = function () {
 
 	let thisLevel = new Level(canvas.getContext("2d"));
 	thisLevel.loadLevel(thisGame.getLevelNum());
-	// thisLevel.printMap();
+	
 
 	let measureFPS = function (newTime) {
 		// la primera ejecución tiene una condición especial
@@ -530,8 +531,8 @@ let GF = function () {
 	};
 
 	let checkInputs = function () {
-		var fila = Math.trunc(player.y / thisGame.TILE_HEIGHT);
-        var colum = Math.trunc(player.x / thisGame.TILE_WIDTH);
+		let fila = Math.trunc(player.y / thisGame.TILE_HEIGHT);
+        let colum = Math.trunc(player.x / thisGame.TILE_WIDTH);
 		if (inputStates.left) {
 			// Si no ha chocado con nada, cambiar los valores para que se desplace a la izquierda
 			if (!thisLevel.checkIfHitWall(player.x - (thisGame.TILE_WIDTH / 2) - 1, player.y, fila, colum)) {
@@ -590,10 +591,7 @@ let GF = function () {
             /*for (let ghost in ghosts) {
                 ghost.state = Ghost.NORMAL; }
             Mismo warning de antes: Value assigned to primitive will be lost, y no funciona */
-		/*for (let i = 0; i < numGhosts; i++) {
-            ghosts[i].state = Ghost.NORMAL;
-        }
-    }*/
+		
 
 		let vulnerables = false;
 		for (let i = 0; i < numGhosts; i++) {
