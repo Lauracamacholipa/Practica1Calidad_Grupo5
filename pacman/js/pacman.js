@@ -733,8 +733,7 @@ let GF = function () {
 				inputStates.left = false;
 				inputStates.right = false;
 				event.preventDefault();
-			} else {
-			}
+			} 
 		}, false);
 	};
 
