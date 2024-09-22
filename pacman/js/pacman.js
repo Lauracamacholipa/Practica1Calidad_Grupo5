@@ -101,42 +101,80 @@ let GF = function () {
 		}; // draw
 
 		this.move = function () {
+			this.calculateNearestTile();
+			
+			if (this.state !== Ghost.SPECTACLES) {
+				this.handleNormalMovement();
+			} else {
+				this.handleSpectaclesMovement();
+			}
+		};
 
+		// Funciones auxiliares extraídas
+		this.calculateNearestTile = function() {
 			this.nearestRow = parseInt((this.y + thisGame.TILE_HEIGHT / 2) / thisGame.TILE_HEIGHT);
 			this.nearestCol = parseInt((this.x + thisGame.TILE_WIDTH / 2) / thisGame.TILE_WIDTH);
+		};
 
-			if (this.state !== Ghost.SPECTACLES) {
-
-				let posiblesMovimientos = [[0, -this.speed], [this.speed, 0], [0, this.speed], [-this.speed, 0]];
-				let soluciones = [];
-
-				for (const movimiento of posiblesMovimientos) {
-					if (!thisLevel.checkIfHitWall(this.x + movimiento[0], this.y + movimiento[1], this.nearestRow, this.nearestCol)) {
-						soluciones.push(movimiento);
-					}
-				}
-
-				if (thisLevel.checkIfHitWall(this.x + this.velX, this.y + this.velY, this.nearestRow, this.nearestCol) || soluciones.length === 3) {
-					let pos = Math.round(Math.random() * (soluciones.length - 1));
-					this.velX = soluciones[pos][0];
-					this.velY = soluciones[pos][1];
-				} else
-					thisLevel.checkIfHitSomething(this, this.x, this.y, this.nearestRow, this.nearestCol);
-				this.x += this.velX;
-				this.y += this.velY;
-
+		this.handleNormalMovement = function() {
+			const validMovements = this.getValidMovements();
+			
+			if (this.shouldChangeDirection(validMovements)) {
+				this.changeDirectionRandomly(validMovements);
 			} else {
-				if(this.x < this.homeX) this.x += this.speed;
-				if(this.x > this.homeX) this.x -= this.speed;
-				if(this.y < this.homeY) this.y += this.speed;
-				if(this.y > this.homeY) this.y -= this.speed;
-				if(this.x === this.homeX && this.y === this.homeY) {
-					this.state = Ghost.NORMAL;
-					this.velY = -this.speed;
+				thisLevel.checkIfHitSomething(this, this.x, this.y, this.nearestRow, this.nearestCol);
+			}
+			
+			this.applyMovement();
+		};
+
+		this.getValidMovements = function() {
+			const posiblesMovimientos = [[0, -this.speed], [this.speed, 0], [0, this.speed], [-this.speed, 0]];
+			const soluciones = [];
+			
+			for (const movimiento of posiblesMovimientos) {
+				if (!thisLevel.checkIfHitWall(this.x + movimiento[0], this.y + movimiento[1], this.nearestRow, this.nearestCol)) {
+					soluciones.push(movimiento);
 				}
 			}
+			
+			return soluciones;
+		};
 
+		this.shouldChangeDirection = function(validMovements) {
+			const isHittingWall = thisLevel.checkIfHitWall(this.x + this.velX, this.y + this.velY, this.nearestRow, this.nearestCol);
+			return isHittingWall || validMovements.length === 3;
+		};
 
+		this.changeDirectionRandomly = function(validMovements) {
+			const randomIndex = Math.round(Math.random() * (validMovements.length - 1));
+			this.velX = validMovements[randomIndex][0];
+			this.velY = validMovements[randomIndex][1];
+		};
+
+		this.applyMovement = function() {
+			this.x += this.velX;
+			this.y += this.velY;
+		};
+
+		this.handleSpectaclesMovement = function() {
+			this.moveTowardsHome();
+			
+			if (this.hasReachedHome()) {
+				this.state = Ghost.NORMAL;
+				this.velY = -this.speed;
+			}
+		};
+
+		this.moveTowardsHome = function() {
+			if (this.x < this.homeX) this.x += this.speed;
+			if (this.x > this.homeX) this.x -= this.speed;
+			if (this.y < this.homeY) this.y += this.speed;
+			if (this.y > this.homeY) this.y -= this.speed;
+		};
+
+		this.hasReachedHome = function() {
+			return this.x === this.homeX && this.y === this.homeY;
 		};
 
 	}; // fin clase Ghost
