@@ -267,53 +267,84 @@ let GF = function () {
 				'ghosts-high-limit': 14,
 			};
 
-			if (this.powerPelletBlinkTimer < 60) {
-				this.powerPelletBlinkTimer = this.powerPelletBlinkTimer + 1;
-			} else {
-				this.powerPelletBlinkTimer = 0;
-			}
+			// Timer simplificado
+			this.powerPelletBlinkTimer = (this.powerPelletBlinkTimer + 1) % 61;
 
-
+			// Dibujar mapa
 			for (let row = 0; row < thisGame.screenTileSize[0]; row++) {
 				for (let col = 0; col < thisGame.screenTileSize[1]; col++) {
-					let type = this.getMapTile(row, col);
-					if (type === tileID['pacman']) {
-						player.homeX = col * TILE_WIDTH;
-						player.homeY = row * TILE_HEIGHT;
-					} else if (type === tileID['pellet']) {
-						//Pildora
-						ctx.beginPath();
-						ctx.arc(col * TILE_WIDTH + (TILE_WIDTH / 2), row * TILE_HEIGHT + (TILE_HEIGHT / 2), 4, 0, 2 * Math.PI, false);
-						ctx.fillStyle = "#FFFFFF";
-						ctx.stroke();
-						ctx.fill();
-					} else if (type === tileID['pellet-power']) {
-						//Pildora de poder
-						if (this.powerPelletBlinkTimer < 30) {
-							ctx.beginPath();
-							ctx.arc(col * TILE_WIDTH + (TILE_WIDTH / 2), row * TILE_HEIGHT + (TILE_HEIGHT / 2), 4, 0, 2 * Math.PI, false);
-							ctx.fillStyle = "#FF0000";
-							ctx.fill();
-						}
-					} else if (type >= tileID['walls-low-limit'] && type < tileID['walls-high-limit']) {
-						//Pared
-						ctx.beginPath();
-						ctx.rect(col*TILE_WIDTH,row*TILE_WIDTH,TILE_WIDTH,TILE_HEIGHT);
-						ctx.fillStyle = '#0000FF';
-						ctx.closePath();
-						ctx.fill();
-					} else if (type >= tileID['ghosts-low-limit'] && type < tileID['ghosts-high-limit']) {
-						if (!ghosts[type - 10].homeValuesSet) {
-							ghosts[type - 10].homeX = col * TILE_WIDTH;
-							ghosts[type - 10].homeY = row * TILE_HEIGHT;
-							ghosts[type - 10].homeValuesSet = true;
-						}
-					}
+					this.processTile(row, col, TILE_WIDTH, TILE_HEIGHT, tileID);
 				}
 			}
 
 			displayScore();
+		};
 
+		this.processTile = function(row, col, TILE_WIDTH, TILE_HEIGHT, tileID) {
+			const type = this.getMapTile(row, col);
+			
+			switch (true) {
+				case type === tileID.pacman:
+					this.handlePacmanTile(row, col, TILE_WIDTH, TILE_HEIGHT);
+					break;
+				case type === tileID.pellet:
+					this.drawPelletTile(col, row, TILE_WIDTH, TILE_HEIGHT);
+					break;
+				case type === tileID['pellet-power']:
+					this.drawPowerPelletTile(col, row, TILE_WIDTH, TILE_HEIGHT);
+					break;
+				case this.isInRange(type, tileID['walls-low-limit'], tileID['walls-high-limit']):
+					this.drawWallTile(col, row, TILE_WIDTH, TILE_HEIGHT);
+					break;
+				case this.isInRange(type, tileID['ghosts-low-limit'], tileID['ghosts-high-limit']):
+					this.handleGhostTile(type, row, col, TILE_WIDTH, TILE_HEIGHT);
+					break;
+			}
+		};
+
+		// FUNCIONES AUXILIARES MÍNIMAS
+		this.handlePacmanTile = function(row, col, TILE_WIDTH, TILE_HEIGHT) {
+			player.homeX = col * TILE_WIDTH;
+			player.homeY = row * TILE_HEIGHT;
+		};
+
+		this.drawPelletTile = function(col, row, TILE_WIDTH, TILE_HEIGHT) {
+			this.drawCircle(col, row, TILE_WIDTH, TILE_HEIGHT, 4, "#FFFFFF");
+		};
+
+		this.drawPowerPelletTile = function(col, row, TILE_WIDTH, TILE_HEIGHT) {
+			if (this.powerPelletBlinkTimer < 30) {
+				this.drawCircle(col, row, TILE_WIDTH, TILE_HEIGHT, 4, "#FF0000");
+			}
+		};
+
+		this.drawWallTile = function(col, row, TILE_WIDTH, TILE_HEIGHT) {
+			ctx.beginPath();
+			ctx.rect(col * TILE_WIDTH, row * TILE_WIDTH, TILE_WIDTH, TILE_HEIGHT);
+			ctx.fillStyle = '#0000FF';
+			ctx.closePath();
+			ctx.fill();
+		};
+
+		this.handleGhostTile = function(type, row, col, TILE_WIDTH, TILE_HEIGHT) {
+			const ghost = ghosts[type - 10];
+			if (!ghost.homeValuesSet) {
+				ghost.homeX = col * TILE_WIDTH;
+				ghost.homeY = row * TILE_HEIGHT;
+				ghost.homeValuesSet = true;
+			}
+		};
+
+		// FUNCIONES UTILITARIAS
+		this.drawCircle = function(col, row, TILE_WIDTH, TILE_HEIGHT, radius, color) {
+			ctx.beginPath();
+			ctx.arc(col * TILE_WIDTH + (TILE_WIDTH / 2), row * TILE_HEIGHT + (TILE_HEIGHT / 2), radius, 0, 2 * Math.PI);
+			ctx.fillStyle = color;
+			ctx.fill();
+		};
+
+		this.isInRange = function(value, min, max) {
+			return value >= min && value < max;
 		};
 
 		this.isWall = function (row, col) {
