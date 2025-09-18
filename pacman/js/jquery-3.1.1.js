@@ -45,33 +45,33 @@
 // enough that all such attempts are guarded in a try block.
 "use strict";
 
-var arr = [];
+let arr = [];
 
-var document = window.document;
+let document = window.document;
 
-var getProto = Object.getPrototypeOf;
+let getProto = Object.getPrototypeOf;
 
-var slice = arr.slice;
+let slice = arr.slice;
 
-var concat = arr.concat;
+let concat = arr.concat;
 
-var push = arr.push;
+let push = arr.push;
 
-var indexOf = arr.indexOf;
+let indexOf = arr.indexOf;
 
-var class2type = {};
+let class2type = {};
 
-var toString = class2type.toString;
+let toString = class2type.toString;
 
-var hasOwn = class2type.hasOwnProperty;
+let hasOwn = class2type.hasOwnProperty;
 
-var fnToString = hasOwn.toString;
+let fnToString = hasOwn.toString;
 
-var ObjectFunctionString = fnToString.call( Object );
+let ObjectFunctionString = fnToString.call( Object );
 
-var support = {};
+let support = {};
 
-var isFunction = function isFunction( obj ) {
+let isFunction = function isFunction( obj ) {
 
       // Support: Chrome <=57, Firefox <=52
       // In some browsers, typeof returns "function" for HTML <object> elements
@@ -81,14 +81,14 @@ var isFunction = function isFunction( obj ) {
   };
 
 
-var isWindow = function isWindow( obj ) {
+let isWindow = function isWindow( obj ) {
 		return obj != null && obj === obj.window;
 	};
 
 
 
 
-	var preservedScriptAttributes = {
+	let preservedScriptAttributes = {
 		type: true,
 		src: true,
 		noModule: true
@@ -97,7 +97,7 @@ var isWindow = function isWindow( obj ) {
 	function DOMEval( code, doc, node ) {
 		doc = doc || document;
 
-		var i,
+		let i,
 			script = doc.createElement( "script" );
 
 		script.text = code;
@@ -128,7 +128,7 @@ function toType( obj ) {
 
 
 
-var
+let
 	version = "3.3.1",
 
 	// Define a local copy of jQuery
@@ -175,7 +175,7 @@ jQuery.fn = jQuery.prototype = {
 	pushStack: function( elems ) {
 
 		// Build a new jQuery matched element set
-		var ret = jQuery.merge( this.constructor(), elems );
+		let ret = jQuery.merge( this.constructor(), elems );
 
 		// Add the old object onto the stack (as a reference)
 		ret.prevObject = this;
@@ -208,7 +208,7 @@ jQuery.fn = jQuery.prototype = {
 	},
 
 	eq: function( i ) {
-		var len = this.length,
+		let len = this.length,
 			j = +i + ( i < 0 ? len : 0 );
 		return this.pushStack( j >= 0 && j < len ? [ this[ j ] ] : [] );
 	},
