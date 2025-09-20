@@ -17,7 +17,7 @@ var GF = function(){
 	var fps;
 
 	//  variable global temporalmente para poder testear el ejercicio
-	inputStates = { left: false, up: false, right: false, down: false, space: false };
+	const inputStates = { left: false, up: false, right: false, down: false, space: false };
 
 	var Pacman = function() {
 		this.radius = 15;
@@ -69,7 +69,7 @@ var GF = function(){
 	}
 
 	// OJO, esto hace a pacman una variable global
-	player = new Pacman();
+	const player = new Pacman();
 
 	var measureFPS = function(newTime){
 		// la primera ejecución tiene una condición especial

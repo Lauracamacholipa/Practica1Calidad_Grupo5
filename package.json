@@ -20,6 +20,7 @@
     "globals": "^16.4.0",
     "jsdom": "^27.0.0",
     "nyc": "^17.1.0",
-    "qunit": "^2.24.1"
+    "qunit": "^2.24.1",
+    "qunit-assert-canvas": "^1.1.0"
   }
 }
