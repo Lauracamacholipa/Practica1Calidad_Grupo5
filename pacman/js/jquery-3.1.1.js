@@ -941,7 +941,7 @@ function siblingCheck( a, b ) {
  */
 function createInputPseudo( type ) {
 	return function( elem ) {
-		var name = elem.nodeName.toLowerCase();
+		let name = elem.nodeName.toLowerCase();
 		return name === "input" && elem.type === type;
 	};
 }
@@ -1017,23 +1017,34 @@ function createDisabledPseudo( disabled ) {
  * Returns a function to use in pseudos for positionals
  * @param {Function} fn
  */
-function createPositionalPseudo( fn ) {
-	return markFunction(function( argument ) {
-		argument = +argument;
-		return markFunction(function( seed, matches ) {
-			let j,
-				matchIndexes = fn( [], seed.length, argument ),
-				i = matchIndexes.length;
-
-			// Match elements found at the specified indexes
-			while ( i-- ) {
-				if ( seed[ (j = matchIndexes[i]) ] ) {
-					seed[j] = !(matches[j] = seed[j]);
-				}
-			}
-		});
-	});
+function createPositionalPseudo(fn) {
+    return markFunction(handleArgument(fn));
 }
+
+function handleArgument(fn) {
+    return function(argument) {
+        argument = +argument;
+        return markFunction(handleMatches(fn, argument));
+    };
+}
+
+function handleMatches(fn, argument) {
+    return function(seed, matches) {
+        let matchIndexes = fn([], seed.length, argument);
+        processMatches(seed, matches, matchIndexes);
+    };
+}
+
+function processMatches(seed, matches, matchIndexes) {
+    let i = matchIndexes.length;
+    while (i--) {
+        let j = matchIndexes[i];
+        if (seed[j]) {
+            seed[j] = !(matches[j] = seed[j]);
+        }
+    }
+}
+
 
 /**
  * Checks a node for validity as a Sizzle context
@@ -1153,7 +1164,7 @@ setDocument = Sizzle.setDocument = function( node ) {
 		// getElementById is not reliable as a find shortcut
 		Expr.find["ID"] = function( id, context ) {
 			if ( typeof context.getElementById !== "undefined" && documentIsHTML ) {
-				var node, i, elems,
+				let node, i, elems,
 					elem = context.getElementById( id );
 
 				if ( elem ) {
@@ -1193,7 +1204,7 @@ setDocument = Sizzle.setDocument = function( node ) {
 		} :
 
 		function( tag, context ) {
-			var elem,
+			let elem,
 				tmp = [],
 				i = 0,
 				// By happy coincidence, a (broken) gEBTN appears on DocumentFragment nodes too
@@ -1287,7 +1298,7 @@ setDocument = Sizzle.setDocument = function( node ) {
 
 			// Support: Windows 8 Native Apps
 			// The type and name attributes are restricted during .innerHTML assignment
-			var input = document.createElement("input");
+			let input = document.createElement("input");
 			input.setAttribute( "type", "hidden" );
 			el.appendChild( input ).setAttribute( "name", "D" );
 
@@ -1346,7 +1357,7 @@ setDocument = Sizzle.setDocument = function( node ) {
 	// As in, an element does not contain itself
 	contains = hasCompare || rnative.test( docElem.contains ) ?
 		function( a, b ) {
-			var adown = a.nodeType === 9 ? a.documentElement : a,
+			let adown = a.nodeType === 9 ? a.documentElement : a,
 				bup = b && b.parentNode;
 			return a === bup || !!( bup && bup.nodeType === 1 && (
 				adown.contains ?
@@ -1379,7 +1390,7 @@ setDocument = Sizzle.setDocument = function( node ) {
 		}
 
 		// Sort on method existence if only one input has compareDocumentPosition
-		var compare = !a.compareDocumentPosition - !b.compareDocumentPosition;
+		let compare = !a.compareDocumentPosition - !b.compareDocumentPosition;
 		if ( compare ) {
 			return compare;
 		}
@@ -1418,7 +1429,7 @@ setDocument = Sizzle.setDocument = function( node ) {
 			return 0;
 		}
 
-		var cur,
+		let cur,
 			i = 0,
 			aup = a.parentNode,
 			bup = b.parentNode,
@@ -1487,7 +1498,7 @@ Sizzle.matchesSelector = function( elem, expr ) {
 		( !rbuggyQSA     || !rbuggyQSA.test( expr ) ) ) {
 
 		try {
-			var ret = matches.call( elem, expr );
+			let ret = matches.call( elem, expr );
 
 			// IE 9's matchesSelector returns false on disconnected nodes
 			if ( ret || support.disconnectedMatch ||
@@ -1516,7 +1527,7 @@ Sizzle.attr = function( elem, name ) {
 		setDocument( elem );
 	}
 
-	var fn = Expr.attrHandle[ name.toLowerCase() ],
+	let fn = Expr.attrHandle[ name.toLowerCase() ],
 		// Don't get fooled by Object.prototype properties (jQuery #13807)
 		val = fn && hasOwn.call( Expr.attrHandle, name.toLowerCase() ) ?
 			fn( elem, name, !documentIsHTML ) :
@@ -1544,7 +1555,7 @@ Sizzle.error = function( msg ) {
  * @param {ArrayLike} results
  */
 Sizzle.uniqueSort = function( results ) {
-	var elem,
+	let elem,
 		duplicates = [],
 		j = 0,
 		i = 0;
@@ -1577,7 +1588,7 @@ Sizzle.uniqueSort = function( results ) {
  * @param {Array|Element} elem
  */
 getText = Sizzle.getText = function( elem ) {
-	var node,
+	let node,
 		ret = "",
 		i = 0,
 		nodeType = elem.nodeType;
@@ -1674,7 +1685,7 @@ Expr = Sizzle.selectors = {
 		},
 
 		"PSEUDO": function( match ) {
-			var excess,
+			let excess,
 				unquoted = !match[6] && match[2];
 
 			if ( matchExpr["CHILD"].test( match[0] ) ) {
@@ -1705,7 +1716,7 @@ Expr = Sizzle.selectors = {
 	filter: {
 
 		"TAG": function( nodeNameSelector ) {
-			var nodeName = nodeNameSelector.replace( runescape, funescape ).toLowerCase();
+			let nodeName = nodeNameSelector.replace( runescape, funescape ).toLowerCase();
 			return nodeNameSelector === "*" ?
 				function() { return true; } :
 				function( elem ) {
@@ -1714,7 +1725,7 @@ Expr = Sizzle.selectors = {
 		},
 
 		"CLASS": function( className ) {
-			var pattern = classCache[ className + " " ];
+			let pattern = classCache[ className + " " ];
 
 			return pattern ||
 				(pattern = new RegExp( "(^|" + whitespace + ")" + className + "(" + whitespace + "|$)" )) &&
@@ -1725,7 +1736,7 @@ Expr = Sizzle.selectors = {
 
 		"ATTR": function( name, operator, check ) {
 			return function( elem ) {
-				var result = Sizzle.attr( elem, name );
+				let result = Sizzle.attr( elem, name );
 
 				if ( result == null ) {
 					return operator === "!=";
