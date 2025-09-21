@@ -14,7 +14,7 @@ var GF = function(){
 	var fps; 
  
 	//  variable global temporalmente para poder testear el ejercicio
-    inputStates = { left: false, up: false, right: false, down: false, space: false };
+    let inputStates = { left: false, up: false, right: false, down: false, space: false };
 
 	var Level = function(ctx) {
 		this.ctx = ctx;
@@ -57,11 +57,11 @@ var GF = function(){
 				this.lvlWidth = trozos[1].split(" ")[2];
 	
 				// Altura
-				valores = trozos[2].split(" ");
+				let valores = trozos[2].split(" ");
 				this.lvlHeight = trozos[2].split(" ")[2];
 	
 				// Valores del mapa
-				valores = trozos[3].split("\n");
+				let valores = trozos[3].split("\n");
 	
 				// Quitar el startleveldata
 				var filas = valores.slice(1, valores.length - 1);
@@ -172,7 +172,7 @@ var GF = function(){
 				for (var c = col-1; c < col+2; c++) {
 					// Mirar si hemos tocado una píldora
 					if((Math.abs(playerX - (c * thisGame.TILE_WIDTH)) < 4) && (Math.abs(playerY - (r * thisGame.TILE_HEIGHT)) < 4)) {
-						valor = thisLevel.getMapTile(r, c);
+						let valor = thisLevel.getMapTile(r, c);
 						if (valor == tileID['pellet']) {
 							thisLevel.setMapTile(r, c, 0);
 							thisLevel.pellets--;
@@ -189,7 +189,7 @@ var GF = function(){
 				for (var c = col-1; c < col+2; c++) {
 					// He puesto "Math.abs(playerX - (c * thisGame.TILE_WIDTH)) < 4)", pero no sé qué poner
 					if((Math.abs(playerX - (c * thisGame.TILE_WIDTH)) < thisGame.TILE_WIDTH) && (Math.abs(playerY - (r * thisGame.TILE_HEIGHT)) < thisGame.TILE_HEIGHT)) {
-						valor = thisLevel.getMapTile(r, c);
+						let valor = thisLevel.getMapTile(r, c);
 						if (valor == tileID["door-h"]) {
 							if(player.velX > 0) {
 								// Puerta de la derecha
@@ -258,7 +258,7 @@ var GF = function(){
     };
 
 	// player variable global para el test
-	player = new Pacman();
+	let player = new Pacman();
 
 	var thisGame = {
 		getLevelNum : function(){
@@ -270,7 +270,7 @@ var GF = function(){
 	};
 
 	// thisLevel global para poder realizar las pruebas unitarias
-	thisLevel = new Level(canvas.getContext("2d"));
+	let thisLevel = new Level(canvas.getContext("2d"));
 	thisLevel.loadLevel( thisGame.getLevelNum() );
 	// thisLevel.printMap(); 
 

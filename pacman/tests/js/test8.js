@@ -15,7 +15,7 @@ var GF = function(){
     var fps; 
  
     //  variable global temporalmente para poder testear el ejercicio
-    inputStates = { left: false, up: false, right: false, down: false, space: false };
+    let inputStates = { left: false, up: false, right: false, down: false, space: false };
 
 	var Level = function(ctx) {
 		this.ctx = ctx;
@@ -54,7 +54,7 @@ var GF = function(){
 			this.lvlWidth = trozos[1].split(" ")[2];
 
 			// Altura
-			valores = trozos[2].split(" ");
+			let valores = trozos[2].split(" ");
 			this.lvlHeight = trozos[2].split(" ");
 
 			// Valores del mapa
@@ -155,7 +155,7 @@ var GF = function(){
 			for (var r = row-1; r < row+2; r++) {
 				for (var c = col-1; c < col+2; c++) {
 					if((Math.abs(playerX - (c * thisGame.TILE_WIDTH)) < 4) && (Math.abs(playerY - (r * thisGame.TILE_HEIGHT)) < 4)) {
-						pos = thisLevel.getMapTile(r, c);
+						let pos = thisLevel.getMapTile(r, c);
 						if (pos == tileID.pellet) {
 							thisLevel.setMapTile(r, c, 0);
 							thisLevel.pellets--;
@@ -220,7 +220,7 @@ var GF = function(){
 	};
 
 	// thisLevel global para poder realizar las pruebas unitarias
-	thisLevel = new Level(canvas.getContext("2d"));
+	let thisLevel = new Level(canvas.getContext("2d"));
 	thisLevel.loadLevel( thisGame.getLevelNum() );
 	// thisLevel.printMap(); 
 
