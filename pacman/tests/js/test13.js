@@ -13,7 +13,7 @@ var GF = function () {
     var fps;
 
     //  variable global temporalmente para poder testear el ejercicio
-    inputStates = { left: false, up: false, right: false, down: false, space: false };
+    let inputStates = { left: false, up: false, right: false, down: false, space: false };
 
     const TILE_WIDTH = 24, TILE_HEIGHT = 24;
     var numGhosts = 4;
@@ -182,7 +182,7 @@ var GF = function () {
                 this.lvlWidth = trozos[1].split(" ")[2];
 
                 // Altura
-                valores = trozos[2].split(" ");
+                let valores = trozos[2].split(" ");
                 this.lvlHeight = trozos[2].split(" ")[2];
 
                 // Valores del mapa
@@ -312,7 +312,7 @@ var GF = function () {
                     for (var c = col - 1; c < col + 2; c++) {
                         // Mirar si hemos tocado una píldora
                         if ((Math.abs(playerX - (c * thisGame.TILE_WIDTH)) < 4) && (Math.abs(playerY - (r * thisGame.TILE_HEIGHT)) < 4)) {
-                            valor = thisLevel.getMapTile(r, c);
+                            let valor = thisLevel.getMapTile(r, c);
                             if (valor == tileID['pellet']) {
                                 thisLevel.setMapTile(r, c, 0);
                                 thisLevel.pellets--;
@@ -340,7 +340,7 @@ var GF = function () {
             for (var r = row-1; r < row+2; r++) {
 				for (var c = col-1; c < col+2; c++) {
 					if((Math.abs(playerX - (c * thisGame.TILE_WIDTH)) < 8) && (Math.abs(playerY - (r * thisGame.TILE_HEIGHT)) < 8)) {
-						pos = thisLevel.getMapTile(r, c);
+						let pos = thisLevel.getMapTile(r, c);
 						if(pos == tileID['door-h']) {
 							console.log("puerta horizontal");
                             if(instancia.velX > 0) instancia.x -= (thisGame.screenTileSize[1]-2)*thisGame.TILE_WIDTH;
