@@ -1,0 +1,179 @@
+[33mcommit a1972380ce56f0a3c8adf117b0b5c6edddf14594[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mrama_andres[m[33m)[m
+Author: andresrev070303 <andres.revollo@ucb.edu.bo>
+Date:   Sat Sep 20 18:54:01 2025 -0400
+
+    Tu mensaje de commit
+
+[33mcommit e6b05ee5878ea7805860fa3035f687ae99e02a13[m
+Author: andresrev070303 <andres.revollo@ucb.edu.bo>
+Date:   Fri Sep 19 03:53:16 2025 -0400
+
+    se corrigio errores de cambio de variables del archivo jquery de var a let dia 2
+
+[33mcommit 19e8393cdb582d07e9d9f0ebfb8ae00135dcb09d[m
+Author: andresrev070303 <andres.revollo@ucb.edu.bo>
+Date:   Thu Sep 18 09:11:38 2025 -0400
+
+    se arreglo los errores Unexpected var, use let or const instead del archivo jquery.js
+
+[33mcommit 958541225990089da008a34502ccdd78bfedccd1[m[33m ([m[1;31morigin/rama_andres[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m, [m[1;32mmain[m[33m)[m
+Author: Laura Camacho <laura.camacho@ucb.edu.bo>
+Date:   Wed Sep 17 10:21:41 2025 -0400
+
+    Eliminada carpeta .scannerwork
+
+[33mcommit 87780aa2bc5bf0f8f41c0e7a45a90b910ee1f8e3[m
+Author: Laura Camacho <laura.camacho@ucb.edu.bo>
+Date:   Wed Sep 17 10:13:04 2025 -0400
+
+    Subiendo el nuevo proyecto DAWE_Pac-Man
+
+[33mcommit 3c74239a4e59776f41fabaed207305277358394f[m
+Author: Ander <anderra57@gmail.com>
+Date:   Thu May 12 20:05:15 2022 +0200
+
+    minor fix
+
+[33mcommit dff3dcba89d69e8ce4ec0f8e314c3c359922ccae[m
+Author: aarias <aarias@ikerlan.es>
+Date:   Thu May 12 18:09:58 2022 +0200
+
+    JUEGO TERMINADO
+
+[33mcommit 77c18a3adeb8c7bdfd3c4176d3f0435e158ea464[m
+Author: adei <adeiariasupv@gmail.com>
+Date:   Thu May 12 02:22:38 2022 +0200
+
+    Movimiento PACMAN arreglado
+
+[33mcommit a2e96e2ca555ec6337c121f19a24f6348fa1c58d[m
+Author: Ander <anderra57@gmail.com>
+Date:   Wed May 11 14:11:59 2022 +0200
+
+    content copied to the main file pacman.js + audio added
+
+[33mcommit 947adf3cc36c7a7e29b95bd52735acfd8188b089[m
+Author: Ander <anderra57@gmail.com>
+Date:   Wed May 11 14:11:20 2022 +0200
+
+    new level with only one pellet
+
+[33mcommit 25b4874be0831677f52c304f2cfb7f810ee66ee5[m
+Author: Ander <anderra57@gmail.com>
+Date:   Wed May 11 14:10:39 2022 +0200
+
+    sounds from https://www.classicgaming.cc/classics/pac-man/sounds added
+
+[33mcommit 9465ae6c6623c059bf11ae06687d28cfe61233d8[m
+Author: Ander <anderra57@gmail.com>
+Date:   Wed May 11 14:10:16 2022 +0200
+
+    Minor fix
+
+[33mcommit d447516001242ba776969554907fc1dbcc6d4a3a[m
+Author: adei <adeiariasupv@gmail.com>
+Date:   Wed May 11 10:09:21 2022 +0200
+
+    Esto ya funciona jeje
+
+[33mcommit a593c1a4e853243b6ebcbc71dc37bd29e29e35f6[m
+Author: Ander <anderra57@gmail.com>
+Date:   Wed May 11 02:55:41 2022 +0200
+
+    Test14 completo
+
+[33mcommit e6804189a91cf3de060f1f59c65392e3cc64ba89[m
+Author: adeiarias <adeiariasupv@gmail.com>
+Date:   Wed May 11 02:31:56 2022 +0200
+
+    Test 13 eginda
+
+[33mcommit 9ad3e95d57cfb37f098a01a43d3c4ebac8fd30d3[m
+Author: adeiarias <adeiariasupv@gmail.com>
+Date:   Wed May 11 02:28:23 2022 +0200
+
+    Test 13 eginda
+
+[33mcommit 2c9bcfe670187cc702fb9d1e26abcd3497408d2a[m
+Author: Ander <anderra57@gmail.com>
+Date:   Tue May 10 19:42:23 2022 +0200
+
+    Test13 completo sin errores
+
+[33mcommit ea11e61ee11f2195cba7506a561ef354dbdfcbaf[m
+Author: Ander <anderra57@gmail.com>
+Date:   Tue May 10 19:35:17 2022 +0200
+
+    Test13 completo, cambiando la variable Ghost.[valor] por el número
+
+[33mcommit c022b85eb54534bbbb03d956b2511537b65f00d8[m
+Author: Ander <anderra57@gmail.com>
+Date:   Tue May 10 19:08:16 2022 +0200
+
+    "TypeError: game.Ghost is undefined"
+
+[33mcommit b47c06d92e60e8e21102bbc18dfbaac15f769981[m
+Author: Ander <anderra57@gmail.com>
+Date:   Tue May 10 16:38:43 2022 +0200
+
+    12 debería ir bien en 60 fps
+
+[33mcommit bc7b65b480ffcc7b27e190b16e106dbf37a70e79[m
+Author: Ander <anderra57@gmail.com>
+Date:   Tue May 10 16:32:53 2022 +0200
+
+    12 se ponen vulnerables
+
+[33mcommit 82b14eb72fd88d24945474e90a2a217f88bc68da[m
+Author: ANDER <anderra57@gmail.com>
+Date:   Tue May 10 16:19:34 2022 +0200
+
+    corregido pellets, test12 sigue sin funcionar
+
+[33mcommit 294746268b69f9b89fa62ef26c7dc30000b7358d[m
+Author: Ander <anderra57@gmail.com>
+Date:   Tue May 10 15:12:08 2022 +0200
+
+    12 no funciona
+
+[33mcommit 4f1ffb604d8d75f77e2e5053f02e1103a259756b[m
+Author: Adei <adeiariasupv@gmail.com>
+Date:   Tue May 10 03:48:45 2022 +0200
+
+    Pruebas 10 y 11 done
+
+[33mcommit 3d585f143b9fa96ad008e1428c2ef0d525036dbd[m
+Author: Ander <anderra57@gmail.com>
+Date:   Tue May 10 02:32:53 2022 +0200
+
+    test10
+
+[33mcommit d2dfe58b71b7a4eba3e56d21a4149531db63f6e2[m
+Author: Adei <adeiariasupv@gmail.com>
+Date:   Tue May 10 02:21:09 2022 +0200
+
+    Test 9 arreglado, Eskerrik asko Ainhoa
+
+[33mcommit 971ec007f43a8bdb82992d81124c9bce149f5b1b[m
+Author: Adei <adeiariasupv@gmail.com>
+Date:   Mon May 9 01:18:53 2022 +0200
+
+    No se por qué no funciona el test 9
+
+[33mcommit f67aa6928569baf9fc5620c96d25cbbe28a2f6c2[m
+Author: Ander <anderra57@gmail.com>
+Date:   Mon Apr 25 18:46:41 2022 +0200
+
+    corregido package.json
+
+[33mcommit ce4d694c88097c99d168712a74d48e77ab91dba0[m
+Author: Ander <anderra57@gmail.com>
+Date:   Mon Apr 25 17:59:52 2022 +0200
+
+    Initial upload
+
+[33mcommit 8976e29d399c3a61d44adeee556f8e366864f48c[m
+Author: Adei <49227821+adeiarias@users.noreply.github.com>
+Date:   Mon Apr 4 09:27:07 2022 +0200
+
+    Initial commit
