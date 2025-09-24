@@ -2814,7 +2814,7 @@ function nodeName( elem, name ) {
   return elem.nodeName && elem.nodeName.toLowerCase() === name.toLowerCase();
 
 };
-let rsingleTag = ( /^<([a-z][^\/\0>:\x20\t\r\n\f]*)[\x20\t\r\n\f]*\/?>(?:<\/\1>|)$/i );
+let rsingleTag = /^<([a-z][^/\0>:\x20\t\r\n\f]*)[\x20\t\r\n\f]*\/?>(?:<\/\1>|)$/i;
 
 
 
@@ -3922,8 +3922,7 @@ if ( document.readyState === "complete" ||
 // Multifunctional method to get and set values of a collection
 // The value/s can optionally be executed if it's a function
 let access = function( elems, fn, key, value, chainable, emptyGet, raw ) {
-    let i = 0,
-        len = elems.length,
+    let len = elems.length,
         bulk = key == null;
 
     if ( toType( key ) === "object" ) {
@@ -4177,7 +4176,7 @@ let dataUser = new Data();
 //	5. Avoid exposing implementation details on user objects (eg. expando properties)
 //	6. Provide a clear path for implementation upgrade to WeakMap in 2014
 
-let rbrace = /^(?:\{[\w\W]*\}|\[[\w\W]*\])$/,
+let rbrace = /^(?:\{.*\}|\[.*\])$/,
 	rmultiDash = /[A-Z]/g;
 
 function getData( data ) {
@@ -4678,7 +4677,7 @@ jQuery.fn.extend( {
 } );
 let rcheckableType = ( /^(?:checkbox|radio)$/i );
 
-let rtagName = ( /<([a-z][^\/\0>\x20\t\r\n\f]+)/i );
+let rtagName = /<([a-z][^/\0>\x20\t\r\n\f]+)/i;
 
 let rscriptType = ( /^$|^module$|\/(?:java|ecma)script/i );
 
