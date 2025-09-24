@@ -26,7 +26,7 @@ var GF = function(){
 		this.angle2 = 1.75;
   };
     
-  pacman = new Pacman();
+	let pacman = new Pacman();
     
 	var measureFPS = function(newTime){
    	// la primera ejecución tiene una condición especial

@@ -18,7 +18,7 @@ var GF = function(){
   var fps; 
  
     //  variable global temporalmente para poder testear el ejercicio
-	inputStates = {};
+	let inputStates = {};
 
 	var Level = function(ctx) {
 		this.ctx = ctx;
@@ -54,7 +54,8 @@ var GF = function(){
 		        dataType: "text",
 		        success : function (data) {
 		            var lineas = data.split("\n");
-		            var inicio = fin = false;
+		            let inicio = false;
+					let fin = false;
 		            var row = 0;
 		            for (var i = 0; i < lineas.length; i++) {
 		            	if(lineas[i].includes("lvlwidth"))
@@ -190,7 +191,7 @@ var GF = function(){
 	};
 
 	// thisLevel global para poder realizar las pruebas unitarias
-	thisLevel = new Level(canvas.getContext("2d"));
+	let thisLevel = new Level(canvas.getContext("2d"));
 	thisLevel.loadLevel( thisGame.getLevelNum() );
 	// thisLevel.printMap(); 
 

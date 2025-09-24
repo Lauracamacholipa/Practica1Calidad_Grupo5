@@ -63,7 +63,7 @@ var GF = function(){
 	}
 
 	// OJO, esto hace a pacman una variable global	
-	pacman = new Pacman();
+	let pacman = new Pacman();
 
 	var measureFPS = function(newTime){
 		// la primera ejecución tiene una condición especial
