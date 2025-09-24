@@ -1,0 +1,6 @@
+pacman/js/jquery-*.js
+pacman/js/howler.js
+pacman/js/qunit*.js
+pacman/js/qunit/**/*.js
+node_modules/**
+dist/**

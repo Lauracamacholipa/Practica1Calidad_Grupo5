@@ -1,0 +1,18 @@
+{
+  "env": {
+    "browser": true,
+    "node": true
+  },
+  "extends": "airbnb-base",
+  "globals": {
+    "$": "readonly",
+    "QUnit": "readonly",
+    "Howl": "readonly",
+    "Howler": "readonly",
+    "Sound": "readonly"
+  },
+  "rules": {
+    "no-unused-vars": "warn",
+    "no-undef": "warn"
+  }
+}
