@@ -14,7 +14,7 @@ var GF = function(){
 	var fps; 
   
   //  variable global temporalmente para poder testear el ejercicio
-  inputStates = { left: false, up: false, right: false, down: false, space: false };
+  let inputStates = { left: false, up: false, right: false, down: false, space: false };
 
   const TILE_WIDTH=24, TILE_HEIGHT=24;
 	var numGhosts = 4;

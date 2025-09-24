@@ -147,7 +147,9 @@ let GF = function () {
 		};
 
 		this.changeDirectionRandomly = function(validMovements) {
-			const randomIndex = Math.round(Math.random() * (validMovements.length - 1));
+			// Math.random() is safe here - used only for non-critical visual game mechanics
+			// No security implications as this affects only cosmetic movement behavior
+			const randomIndex = Math.floor(Math.random() * validMovements.length);
 			this.velX = validMovements[randomIndex][0];
 			this.velY = validMovements[randomIndex][1];
 		};

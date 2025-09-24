@@ -685,31 +685,31 @@ let i,
 
 // Optimize for push.apply( _, NodeList )
 try {
-	push.apply(
-		(arr = slice.call( preferredDoc.childNodes )),
-		preferredDoc.childNodes
-	);
-	// Support: Android<4.0
-	// Detect silently failing push.apply
-	arr[ preferredDoc.childNodes.length ].nodeType;
-} catch ( e ) {
-	push = { apply: arr.length ?
-
-		// Leverage slice if possible
-		function( target, els ) {
-			push_native.apply( target, slice.call(els) );
-		} :
-
-		// Support: IE<9
-		// Otherwise append directly
-		function( target, els ) {
-			let j = target.length,
-				i = 0;
-			// Can't trust NodeList.length
-			while ( (target[j++] = els[i++]) ) {}
-			target.length = j - 1;
-		}
-	};
+    push.apply(
+        (arr = slice.call( preferredDoc.childNodes )),
+        preferredDoc.childNodes
+    );
+    // Support: Android<4.0
+    // Detect silently failing push.apply
+    arr[ preferredDoc.childNodes.length ].nodeType;
+} catch {
+    // No need to capture the exception variable if we're not using it
+    push = { 
+        apply: arr.length ?
+            // Leverage slice if possible
+            function( target, els ) {
+                push_native.apply( target, slice.call(els) );
+            } :
+            // Support: IE<9
+            // Otherwise append directly
+            function( target, els ) {
+                let j = target.length,
+                    i = 0;
+                // Can't trust NodeList.length
+                while ( (target[j++] = els[i++]) ) {}
+                target.length = j - 1;
+            }
+    };
 }
 
 function Sizzle( selector, context, results, seed ) {
@@ -829,9 +829,9 @@ function Sizzle( selector, context, results, seed ) {
 						);
 						return results;
 					} catch ( qsaError ) {
-					} finally {
-						if ( nid === expando ) {
-							context.removeAttribute( "id" );
+						// Only log in development environment
+						if ( process.env.NODE_ENV === 'development' ) {
+							console.warn( "QSA failed, using fallback:", qsaError );
 						}
 					}
 				}
@@ -2000,7 +2000,7 @@ Expr = Sizzle.selectors = {
 
 		// Miscellaneous
 		"target": function( elem ) {
-			let hash = window.location && window.location.hash;
+			let hash = window.location?.hash;
 			return hash && hash.slice( 1 ) === elem.id;
 		},
 
@@ -2814,7 +2814,7 @@ function nodeName( elem, name ) {
   return elem.nodeName && elem.nodeName.toLowerCase() === name.toLowerCase();
 
 };
-let rsingleTag = ( /^<([a-z][^\/\0>:\x20\t\r\n\f]*)[\x20\t\r\n\f]*\/?>(?:<\/\1>|)$/i );
+let rsingleTag = /^<([a-z][^/\0>:\x20\t\r\n\f]*)[\x20\t\r\n\f]*\/?>(?:<\/\1>|)$/i;
 
 
 
@@ -3507,7 +3507,7 @@ jQuery.extend( {
 							// deferred.done(function() { bind to newDefer or newDefer.resolve })
 							// deferred.fail(function() { bind to newDefer or newDefer.reject })
 							deferred[ tuple[ 1 ] ]( function() {
-								let returned = fn && fn.apply( this, arguments );
+								let returned = fn?.apply( this, arguments );
 								if ( returned && isFunction( returned.promise ) ) {
 									returned.promise()
 										.progress( newDefer.notify )
@@ -3922,65 +3922,65 @@ if ( document.readyState === "complete" ||
 // Multifunctional method to get and set values of a collection
 // The value/s can optionally be executed if it's a function
 let access = function( elems, fn, key, value, chainable, emptyGet, raw ) {
-	let i = 0,
-		len = elems.length,
-		bulk = key == null;
+    let len = elems.length,
+        bulk = key == null;
 
-	// Sets many values
-	if ( toType( key ) === "object" ) {
-		chainable = true;
-		for ( i in key ) {
-			access( elems, fn, i, key[ i ], true, emptyGet, raw );
-		}
+    if ( toType( key ) === "object" ) {
+        handleObjectKey( elems, fn, key, emptyGet, raw );
+        return elems;
+    }
 
-	// Sets one value
-	} else if ( value !== undefined ) {
-		chainable = true;
+    if ( value !== undefined ) {
+        handleValueSetting( elems, fn, key, value, bulk, len );
+        return elems;
+    }
 
-		if ( !isFunction( value ) ) {
-			raw = true;
-		}
-
-		if ( bulk ) {
-
-			// Bulk operations run against the entire set
-			if ( raw ) {
-				fn.call( elems, value );
-				fn = null;
-
-			// ...except when executing function values
-			} else {
-				bulk = fn;
-				fn = function( elem, key, value ) {
-					return bulk.call( jQuery( elem ), value );
-				};
-			}
-		}
-
-		if ( fn ) {
-			for ( ; i < len; i++ ) {
-				fn(
-					elems[ i ], key, raw ?
-					value :
-					value.call( elems[ i ], i, fn( elems[ i ], key ) )
-				);
-			}
-		}
-	}
-
-	if ( chainable ) {
-		return elems;
-	}
-
-	// Gets
-	if ( bulk ) {
-		return fn.call( elems );
-	}
-
-	return len ? fn( elems[ 0 ], key ) : emptyGet;
+    return handleValueGetting( elems, fn, key, bulk, len, emptyGet );
 };
 
+function handleObjectKey( elems, fn, key, emptyGet, raw ) {
+    for ( let i in key ) {
+        access( elems, fn, i, key[ i ], true, emptyGet, raw );
+    }
+}
 
+function handleValueSetting( elems, fn, key, value, bulk, len ) {
+    let raw = !isFunction( value );
+    
+    if ( bulk ) {
+        fn = handleBulkOperation( fn, value, raw );
+    }
+
+    if ( fn ) {
+        executeFunctionOnElements( elems, fn, key, value, raw, len );
+    }
+}
+
+function handleBulkOperation( fn, value, raw ) {
+    if ( raw ) {
+        fn.call( elems, value );
+        return null;
+    } else {
+        let bulk = fn;
+        return function( elem, key, value ) {
+            return bulk.call( jQuery( elem ), value );
+        };
+    }
+}
+
+function executeFunctionOnElements( elems, fn, key, value, raw, len ) {
+    for ( let i = 0; i < len; i++ ) {
+        let elementValue = raw ? value : value.call( elems[ i ], i, fn( elems[ i ], key ) );
+        fn( elems[ i ], key, elementValue );
+    }
+}
+
+function handleValueGetting( elems, fn, key, bulk, len, emptyGet ) {
+    if ( bulk ) {
+        return fn.call( elems );
+    }
+    return len ? fn( elems[ 0 ], key ) : emptyGet;
+}
 // Matches dashed string for camelizing
 let rmsPrefix = /^-ms-/,
 	rdashAlpha = /-([a-z])/g;
@@ -4176,7 +4176,7 @@ let dataUser = new Data();
 //	5. Avoid exposing implementation details on user objects (eg. expando properties)
 //	6. Provide a clear path for implementation upgrade to WeakMap in 2014
 
-let rbrace = /^(?:\{[\w\W]*\}|\[[\w\W]*\])$/,
+let rbrace = /^(?:\{.*\}|\[.*\])$/,
 	rmultiDash = /[A-Z]/g;
 
 function getData( data ) {
@@ -4467,7 +4467,7 @@ jQuery.fn.extend( {
 		return defer.promise( obj );
 	}
 } );
-let pnum = ( /[+-]?(?:\d*\.|)\d+(?:[eE][+-]?\d+|)/ ).source;
+let pnum = ( /[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?/ ).source;
 
 let rcssNum = new RegExp( "^(?:([+-])=|)(" + pnum + ")([a-z%]*)$", "i" );
 
@@ -4677,7 +4677,7 @@ jQuery.fn.extend( {
 } );
 let rcheckableType = ( /^(?:checkbox|radio)$/i );
 
-let rtagName = ( /<([a-z][^\/\0>\x20\t\r\n\f]+)/i );
+let rtagName = /<([a-z][^/\0>\x20\t\r\n\f]+)/i;
 
 let rscriptType = ( /^$|^module$|\/(?:java|ecma)script/i );
 
