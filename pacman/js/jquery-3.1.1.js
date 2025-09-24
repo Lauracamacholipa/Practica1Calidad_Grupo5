@@ -4467,7 +4467,7 @@ jQuery.fn.extend( {
 		return defer.promise( obj );
 	}
 } );
-let pnum = ( /[+-]?(?:\d*\.|)\d+(?:[eE][+-]?\d+|)/ ).source;
+let pnum = ( /[+-]?(?:\d*\.)?\d+(?:[eE][+-]?\d+)?/ ).source;
 
 let rcssNum = new RegExp( "^(?:([+-])=|)(" + pnum + ")([a-z%]*)$", "i" );
 
