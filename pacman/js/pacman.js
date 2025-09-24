@@ -3,7 +3,7 @@ let canvas = document.querySelector("canvas");
 let ctx = canvas.getContext("2d");
 let w = canvas.width;
 let h = canvas.height;
-var oldDirecrion = "right"; // Esta variable nos permitirá en caso de que Pacman quisiera cambiar de dirección y que no se pueda, seguir por la misma dirección
+let oldDirecrion = "right"; // Esta variable nos permitirá en caso de que Pacman quisiera cambiar de dirección y que no se pueda, seguir por la misma dirección
 // Se ha inicializado a right, porque pacman empieza moviendose hacia la derecha
 
 // Incializar las variables de las puntuaciones
@@ -101,41 +101,80 @@ let GF = function () {
 		}; // draw
 
 		this.move = function () {
+			this.calculateNearestTile();
+			
+			if (this.state !== Ghost.SPECTACLES) {
+				this.handleNormalMovement();
+			} else {
+				this.handleSpectaclesMovement();
+			}
+		};
 
+		// Funciones auxiliares extraídas
+		this.calculateNearestTile = function() {
 			this.nearestRow = parseInt((this.y + thisGame.TILE_HEIGHT / 2) / thisGame.TILE_HEIGHT);
 			this.nearestCol = parseInt((this.x + thisGame.TILE_WIDTH / 2) / thisGame.TILE_WIDTH);
+		};
 
-			if (this.state !== Ghost.SPECTACLES) {
-
-				let posiblesMovimientos = [[0, -this.speed], [this.speed, 0], [0, this.speed], [-this.speed, 0]];
-				let soluciones = [];
-
-				for (let i = 0; i < posiblesMovimientos.length; i++) {
-					if (!thisLevel.checkIfHitWall(this.x + posiblesMovimientos[i][0], this.y + posiblesMovimientos[i][1], this.nearestRow, this.nearestCol))
-						soluciones.push(posiblesMovimientos[i]);
-				}
-
-				if (thisLevel.checkIfHitWall(this.x + this.velX, this.y + this.velY, this.nearestRow, this.nearestCol) || soluciones.length === 3) {
-					let pos = Math.round(Math.random() * (soluciones.length - 1));
-					this.velX = soluciones[pos][0];
-					this.velY = soluciones[pos][1];
-				} else
-					thisLevel.checkIfHitSomething(this, this.x, this.y, this.nearestRow, this.nearestCol);
-				this.x += this.velX;
-				this.y += this.velY;
-
+		this.handleNormalMovement = function() {
+			const validMovements = this.getValidMovements();
+			
+			if (this.shouldChangeDirection(validMovements)) {
+				this.changeDirectionRandomly(validMovements);
 			} else {
-				if(this.x < this.homeX) this.x += this.speed;
-				if(this.x > this.homeX) this.x -= this.speed;
-				if(this.y < this.homeY) this.y += this.speed;
-				if(this.y > this.homeY) this.y -= this.speed;
-				if(this.x === this.homeX && this.y === this.homeY) {
-					this.state = Ghost.NORMAL;
-					this.velY = -this.speed;
+				thisLevel.checkIfHitSomething(this, this.x, this.y, this.nearestRow, this.nearestCol);
+			}
+			
+			this.applyMovement();
+		};
+
+		this.getValidMovements = function() {
+			const posiblesMovimientos = [[0, -this.speed], [this.speed, 0], [0, this.speed], [-this.speed, 0]];
+			const soluciones = [];
+			
+			for (const movimiento of posiblesMovimientos) {
+				if (!thisLevel.checkIfHitWall(this.x + movimiento[0], this.y + movimiento[1], this.nearestRow, this.nearestCol)) {
+					soluciones.push(movimiento);
 				}
 			}
+			
+			return soluciones;
+		};
 
+		this.shouldChangeDirection = function(validMovements) {
+			const isHittingWall = thisLevel.checkIfHitWall(this.x + this.velX, this.y + this.velY, this.nearestRow, this.nearestCol);
+			return isHittingWall || validMovements.length === 3;
+		};
 
+		this.changeDirectionRandomly = function(validMovements) {
+			const randomIndex = Math.round(Math.random() * (validMovements.length - 1));
+			this.velX = validMovements[randomIndex][0];
+			this.velY = validMovements[randomIndex][1];
+		};
+
+		this.applyMovement = function() {
+			this.x += this.velX;
+			this.y += this.velY;
+		};
+
+		this.handleSpectaclesMovement = function() {
+			this.moveTowardsHome();
+			
+			if (this.hasReachedHome()) {
+				this.state = Ghost.NORMAL;
+				this.velY = -this.speed;
+			}
+		};
+
+		this.moveTowardsHome = function() {
+			if (this.x < this.homeX) this.x += this.speed;
+			if (this.x > this.homeX) this.x -= this.speed;
+			if (this.y < this.homeY) this.y += this.speed;
+			if (this.y > this.homeY) this.y -= this.speed;
+		};
+
+		this.hasReachedHome = function() {
+			return this.x === this.homeX && this.y === this.homeY;
 		};
 
 	}; // fin clase Ghost
@@ -228,53 +267,84 @@ let GF = function () {
 				'ghosts-high-limit': 14,
 			};
 
-			if (this.powerPelletBlinkTimer < 60) {
-				this.powerPelletBlinkTimer = this.powerPelletBlinkTimer + 1;
-			} else {
-				this.powerPelletBlinkTimer = 0;
-			}
+			// Timer simplificado
+			this.powerPelletBlinkTimer = (this.powerPelletBlinkTimer + 1) % 61;
 
-
+			// Dibujar mapa
 			for (let row = 0; row < thisGame.screenTileSize[0]; row++) {
 				for (let col = 0; col < thisGame.screenTileSize[1]; col++) {
-					let type = this.getMapTile(row, col);
-					if (type === tileID['pacman']) {
-						player.homeX = col * TILE_WIDTH;
-						player.homeY = row * TILE_HEIGHT;
-					} else if (type === tileID['pellet']) {
-						//Pildora
-						ctx.beginPath();
-						ctx.arc(col * TILE_WIDTH + (TILE_WIDTH / 2), row * TILE_HEIGHT + (TILE_HEIGHT / 2), 4, 0, 2 * Math.PI, false);
-						ctx.fillStyle = "#FFFFFF";
-						ctx.stroke();
-						ctx.fill();
-					} else if (type === tileID['pellet-power']) {
-						//Pildora de poder
-						if (this.powerPelletBlinkTimer < 30) {
-							ctx.beginPath();
-							ctx.arc(col * TILE_WIDTH + (TILE_WIDTH / 2), row * TILE_HEIGHT + (TILE_HEIGHT / 2), 4, 0, 2 * Math.PI, false);
-							ctx.fillStyle = "#FF0000";
-							ctx.fill();
-						}
-					} else if (type >= tileID['walls-low-limit'] && type < tileID['walls-high-limit']) {
-						//Pared
-						ctx.beginPath();
-						ctx.rect(col*TILE_WIDTH,row*TILE_WIDTH,TILE_WIDTH,TILE_HEIGHT);
-						ctx.fillStyle = '#0000FF';
-						ctx.closePath();
-						ctx.fill();
-					} else if (type >= tileID['ghosts-low-limit'] && type < tileID['ghosts-high-limit']) {
-						if (!ghosts[type - 10].homeValuesSet) {
-							ghosts[type - 10].homeX = col * TILE_WIDTH;
-							ghosts[type - 10].homeY = row * TILE_HEIGHT;
-							ghosts[type - 10].homeValuesSet = true;
-						}
-					}
+					this.processTile(row, col, TILE_WIDTH, TILE_HEIGHT, tileID);
 				}
 			}
 
 			displayScore();
+		};
 
+		this.processTile = function(row, col, TILE_WIDTH, TILE_HEIGHT, tileID) {
+			const type = this.getMapTile(row, col);
+			
+			switch (true) {
+				case type === tileID.pacman:
+					this.handlePacmanTile(row, col, TILE_WIDTH, TILE_HEIGHT);
+					break;
+				case type === tileID.pellet:
+					this.drawPelletTile(col, row, TILE_WIDTH, TILE_HEIGHT);
+					break;
+				case type === tileID['pellet-power']:
+					this.drawPowerPelletTile(col, row, TILE_WIDTH, TILE_HEIGHT);
+					break;
+				case this.isInRange(type, tileID['walls-low-limit'], tileID['walls-high-limit']):
+					this.drawWallTile(col, row, TILE_WIDTH, TILE_HEIGHT);
+					break;
+				case this.isInRange(type, tileID['ghosts-low-limit'], tileID['ghosts-high-limit']):
+					this.handleGhostTile(type, row, col, TILE_WIDTH, TILE_HEIGHT);
+					break;
+			}
+		};
+
+		// FUNCIONES AUXILIARES MÍNIMAS
+		this.handlePacmanTile = function(row, col, TILE_WIDTH, TILE_HEIGHT) {
+			player.homeX = col * TILE_WIDTH;
+			player.homeY = row * TILE_HEIGHT;
+		};
+
+		this.drawPelletTile = function(col, row, TILE_WIDTH, TILE_HEIGHT) {
+			this.drawCircle(col, row, TILE_WIDTH, TILE_HEIGHT, 4, "#FFFFFF");
+		};
+
+		this.drawPowerPelletTile = function(col, row, TILE_WIDTH, TILE_HEIGHT) {
+			if (this.powerPelletBlinkTimer < 30) {
+				this.drawCircle(col, row, TILE_WIDTH, TILE_HEIGHT, 4, "#FF0000");
+			}
+		};
+
+		this.drawWallTile = function(col, row, TILE_WIDTH, TILE_HEIGHT) {
+			ctx.beginPath();
+			ctx.rect(col * TILE_WIDTH, row * TILE_WIDTH, TILE_WIDTH, TILE_HEIGHT);
+			ctx.fillStyle = '#0000FF';
+			ctx.closePath();
+			ctx.fill();
+		};
+
+		this.handleGhostTile = function(type, row, col, TILE_WIDTH, TILE_HEIGHT) {
+			const ghost = ghosts[type - 10];
+			if (!ghost.homeValuesSet) {
+				ghost.homeX = col * TILE_WIDTH;
+				ghost.homeY = row * TILE_HEIGHT;
+				ghost.homeValuesSet = true;
+			}
+		};
+
+		// FUNCIONES UTILITARIAS
+		this.drawCircle = function(col, row, TILE_WIDTH, TILE_HEIGHT, radius, color) {
+			ctx.beginPath();
+			ctx.arc(col * TILE_WIDTH + (TILE_WIDTH / 2), row * TILE_HEIGHT + (TILE_HEIGHT / 2), radius, 0, 2 * Math.PI);
+			ctx.fillStyle = color;
+			ctx.fill();
+		};
+
+		this.isInRange = function(value, min, max) {
+			return value >= min && value < max;
 		};
 
 		this.isWall = function (row, col) {
@@ -324,17 +394,17 @@ let GF = function () {
 								thisLevel.pellets--;
 								console.log(thisLevel.pellets);
 								thisGame.addToScore(puntos_comer_pildora);
-								// let sound_eat_pellet = new Audio('../res/sounds/pacman_eatpill.wav');
+								
 								thisGame.sound_eat_pellet.play(); // si falla, descomentar arriba y borrar la declaracion de la 470 aprox
 								if (thisLevel.pellets == 0) {
 									console.log("Has ganado");
 									thisGame.setMode(thisGame.WIN);
-									// let sound_win = new Audio('../res/sounds/pacman_beginning.wav');
+									
 									thisGame.sound_win.play(); // si falla, descomentar arriba y borrar la declaracion de la 470 aprox
 								}
 							} else if (valor === tileID['pellet-power']) {
 								thisLevel.setMapTile(r, c, 0);
-								// let sound_eat_pellet = new Audio('../res/sounds/pacman_eatfruit.wav');
+								
 								thisGame.sound_eat_powerpellet.play(); // si falla, descomentar arriba y borrar la declaracion de la 470 aprox
 
 								/* for (let ghost in ghosts){
@@ -399,18 +469,18 @@ let GF = function () {
 						ghosts[i].state = Ghost.SPECTACLES;
 						thisGame.addToScore(comer_fantasmas);
 
-						// let sound_eat_ghost = new Audio('../res/sounds/pacman_eatghost.wav');
+						
 						thisGame.sound_eat_ghost.play(); // si falla, descomentar arriba y borrar la declaracion de la 470 aprox
 
 					} else if (ghosts[i].state === Ghost.NORMAL){
 						thisGame.lives--; // Quitamos una vida
 						if (thisGame.lives > 0) {
-							// let sound_die = new Audio('../res/sounds/pacman_death.wav');
+							
 							thisGame.sound_die.play(); // si falla, descomentar arriba y borrar la declaracion de la 470 aprox
 
 							thisGame.setMode(thisGame.HIT_GHOST);
 						} else {
-							// let sound_lose = new Audio('../res/sounds/pacman_intermission.wav');
+							
 							thisGame.sound_lose.play(); // si falla, descomentar arriba y borrar la declaracion de la 470 aprox
 
 							thisGame.lives = 0;
@@ -425,7 +495,7 @@ let GF = function () {
 			this.velX = 0;
 			this.velY = 0;
 		}
-		//thisLevel.checkIfHitSomething(this.x, this.y, this.nearestRow, this.nearestCol);
+		
 
 	};
 
@@ -500,7 +570,7 @@ let GF = function () {
 
 	let thisLevel = new Level(canvas.getContext("2d"));
 	thisLevel.loadLevel(thisGame.getLevelNum());
-	// thisLevel.printMap();
+	
 
 	let measureFPS = function (newTime) {
 		// la primera ejecución tiene una condición especial
@@ -530,8 +600,8 @@ let GF = function () {
 	};
 
 	let checkInputs = function () {
-		var fila = Math.trunc(player.y / thisGame.TILE_HEIGHT);
-        var colum = Math.trunc(player.x / thisGame.TILE_WIDTH);
+		let fila = Math.trunc(player.y / thisGame.TILE_HEIGHT);
+        let colum = Math.trunc(player.x / thisGame.TILE_WIDTH);
 		if (inputStates.left) {
 			// Si no ha chocado con nada, cambiar los valores para que se desplace a la izquierda
 			if (!thisLevel.checkIfHitWall(player.x - (thisGame.TILE_WIDTH / 2) - 1, player.y, fila, colum)) {
@@ -590,10 +660,7 @@ let GF = function () {
             /*for (let ghost in ghosts) {
                 ghost.state = Ghost.NORMAL; }
             Mismo warning de antes: Value assigned to primitive will be lost, y no funciona */
-		/*for (let i = 0; i < numGhosts; i++) {
-            ghosts[i].state = Ghost.NORMAL;
-        }
-    }*/
+		
 
 		let vulnerables = false;
 		for (let i = 0; i < numGhosts; i++) {
@@ -735,8 +802,7 @@ let GF = function () {
 				inputStates.left = false;
 				inputStates.right = false;
 				event.preventDefault();
-			} else {
-			}
+			} 
 		}, false);
 	};
 

@@ -17,11 +17,11 @@
         },
 
         _render: function() {
-	    var frame;
+	    let frame;
 
             if(this.speed > 0) {
-                var max = this.frames.length;
-                var idx = Math.floor(this._index);
+                let max = this.frames.length;
+                let idx = Math.floor(this._index);
                 frame = this.frames[idx % max];
 
                 if(this.once && idx >= max) {
@@ -34,8 +34,8 @@
             }
 
 
-            var x = this.pos[0];
-            var y = this.pos[1];
+            let x = this.pos[0];
+            let y = this.pos[1];
 
             if(this.dir == 'vertical') {
                 y += frame * this.size[1];
@@ -49,7 +49,7 @@
 		 },
 
         render: function(ctx) {
-        	var pos = this._render();
+        	let pos = this._render();
 	    		ctx.drawImage(resources.get(this.url),
                           pos.x, pos.y,
                           this.size[0], this.size[1],
@@ -58,11 +58,11 @@
         },
 
 	image: function() {
-		var pos = this._render();
-		var pattern_canvas = document.createElement('canvas');
+		let pos = this._render();
+		let pattern_canvas = document.createElement('canvas');
 		pattern_canvas.width = this.size[0];
 		pattern_canvas.height = this.size[1];
-		var pattern_context = pattern_canvas.getContext('2d');
+		let pattern_context = pattern_canvas.getContext('2d');
 			pattern_context.drawImage(resources.get(this.url),
                           pos.x, pos.y,
                           this.size[0], this.size[1],
