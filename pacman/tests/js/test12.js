@@ -163,7 +163,7 @@ var GF = function () {
                 this.lvlHeight = trozos[2].split(" ")[2];
 
                 // Valores del mapa
-                let valores = trozos[3].split("\n");
+                valores = trozos[3].split("\n");
 
                 // Quitar el startleveldata
                 var filas = valores.slice(1, valores.length - 1);
